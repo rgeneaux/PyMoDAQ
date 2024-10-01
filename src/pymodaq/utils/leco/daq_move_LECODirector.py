@@ -39,7 +39,9 @@ class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
     controller: ActuatorDirector
 
     is_multiaxes = False
-    axes_names = []
+    axis_name = ['']
+    _epsilon = 0.1
+    _controller_units = 'mm'
     params_client = []  # parameters of a client grabber
     data_actuator_type = DataActuatorType['float']  # DataActuatorType['DataActuator']
 
@@ -48,11 +50,12 @@ class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
                                                 'move_done']
     socket_types = ["ACTUATOR"]
     params = [
-    ] + comon_parameters_fun(is_multiaxes=is_multiaxes, axes_names=axes_names) + leco_parameters
+    ] + comon_parameters_fun(is_multiaxes=is_multiaxes, axis_names=axis_name, epsilon=_epsilon) + leco_parameters
 
-    def __init__(self, parent=None, params_state=None, **kwargs) -> None:
+    def __init__(self, parent=None, params_state=None, host="localhost", **kwargs) -> None:
         super().__init__(parent=parent,
-                         params_state=params_state, **kwargs)
+                         params_state=params_state,
+                         host=host, **kwargs)
         self.register_rpc_methods((
             self.set_info,
             self.set_position,
