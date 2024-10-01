@@ -43,12 +43,12 @@ class LECODirector:
     controller: GenericDirector
     settings: Parameter
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, host="localhost", **kwargs) -> None:
         super().__init__(**kwargs)
 
         name = f'{self._title}_{random.randrange(0, 10000)}_director'
         # TODO use the same Listener instance as the LECOActorModule
-        self.listener = PymodaqListener(name=name)
+        self.listener = PymodaqListener(name=name, host=host)
         self.listener.start_listen()
         self.communicator = self.listener.get_communicator()
         self.register_rpc_methods((

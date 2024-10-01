@@ -433,7 +433,7 @@ class DAQ_Move_base(QObject):
             self.parent.status_sig.emit(status)
             QtWidgets.QApplication.processEvents()
         else:
-            print(status)
+            logger.debug(status)
 
     def emit_value(self, pos: DataActuator):
         """Convenience method to emit the current actuator value back to the UI"""

@@ -50,9 +50,10 @@ class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
     params = [
     ] + comon_parameters_fun(is_multiaxes=is_multiaxes, axes_names=axes_names) + leco_parameters
 
-    def __init__(self, parent=None, params_state=None, **kwargs) -> None:
+    def __init__(self, parent=None, params_state=None, host="localhost", **kwargs) -> None:
         super().__init__(parent=parent,
-                         params_state=params_state, **kwargs)
+                         params_state=params_state,
+                         host=host, **kwargs)
         self.register_rpc_methods((
             self.set_info,
             self.set_position,
