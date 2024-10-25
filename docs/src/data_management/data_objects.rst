@@ -52,7 +52,7 @@ optional named arguments.
 
 
 >>> import numpy as np
->>> from pymodaq.utils.data import DataBase, DataSource, DataDim, DataDistribution
+>>> from pymodaq_data.data import DataBase, DataSource, DataDim, DataDistribution
 >>> data = DataBase('mydata', units= 'ms', source=DataSource['raw'],\
 distribution=DataDistribution['uniform'], data=[np.array([1,2,3]), np.array([4,5,6])],\
 labels=['channel1', 'channel2'], origin="documentation's code")
@@ -107,7 +107,7 @@ Axis
 
 The `Axis` object stores the information about the data's axis
 
->>> from pymodaq.utils.data import Axis
+>>> from pymodaq_data.data import Axis
 >>> axis = Axis('myaxis', units='seconds', data=np.array([3,7,11,15]), index=0)
 >>> axis
 Axis: <label: myaxis> - <units: seconds> - <index: 0>
@@ -156,7 +156,7 @@ the ``DataBase`` object is no more enough to describe the data.
 PyMoDAQ therefore introduces ``DataWithAxes`` which inherits from ``DataBase`` and introduces more
 metadata and functionalities.
 
->>> from pymodaq.utils.data import DataWithAxes
+>>> from pymodaq_data.data import DataWithAxes
 >>> data = DataWithAxes('mydata', source=DataSource['raw'], dim=DataDim['Data2D'], \
 distribution=DataDistribution['uniform'], data=[np.array([[1,2,3], [4,5,6]])],\
 axes=[Axis('vaxis', index=0, data=np.array([-1, 1])),
@@ -197,7 +197,7 @@ objects will be done by converting both objects in the same units before doing t
 .. code-block::
 
 >>> import numpy as np
->>> from pymodaq.utils.data import DataRaw
+>>> from pymodaq_data.data import DataRaw
 >>> array = np.array([0, 1, 2])
 >>> dwa_s = data_mod.DataRaw('data', units='s', data=[array])
 >>> dwa_ms = data_mod.DataRaw('data', units='ms', data=[array])
@@ -376,7 +376,7 @@ object.
 ``DataToExport`` is a ``DataLowLevel`` object with an extra attribute data, that is actually a list of ``DataWithAxes``
 objects:
 
->>> from pymodaq.utils.data import DataToExport, DataRaw
+>>> from pymodaq_data.data import DataToExport, DataRaw
 >>> dwa0D = DataRaw('dwa0D', data=[np.array([1]), np.array([2]) , np.array([3])])
 >>> dwa1D = DataRaw('dwa1D', data=[np.array([1, 2 , 3])])
 >>> dte = DataToExport(name='a_lot_of_different_data', data=[dwa0D, dwa1D])

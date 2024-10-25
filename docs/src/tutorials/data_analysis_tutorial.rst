@@ -72,9 +72,9 @@ the physics, it's not an issue as this notebook is here to show you how to load,
     import numpy as np
     
     # importing PymoDAQ modules
-    from pymodaq.utils.h5modules.saving import H5SaverLowLevel  # object to open the h5 file
-    from pymodaq.utils.h5modules.data_saving import DataLoader  # object used to properly load data from the h5 file
-    from pymodaq.utils.data import DataRaw, DataToExport
+    from pymodaq_data.h5modules.saving import H5SaverLowLevel  # object to open the h5 file
+    from pymodaq_data.h5modules.data_saving import DataLoader  # object used to properly load data from the h5 file
+    from pymodaq_data.data import DataRaw, DataToExport
     
     from pymodaq import __version__
     print(__version__)
@@ -356,8 +356,8 @@ Resampling
 
 .. code:: ipython3
 
-    from pymodaq.utils import math_utils as mutils
-    from pymodaq.utils.data import Axis
+    from pymodaq_utils.utils import math_utils as mutils
+    from pymodaq_data.data import Axis
     phonon_axis_array = dwa_phonons.get_axis_from_index(0)[0].get_data()
     phonon_axis_array -= phonon_axis_array[0]
     time_step = phonon_axis_array[-1] - phonon_axis_array[-2]
@@ -399,7 +399,7 @@ Using advanced math processors to extract data from dwa:
 
 .. code:: ipython3
 
-    from pymodaq.post_treatment.process_to_scalar import DataProcessorFactory
+    from pymodaq_data.post_treatment.process_to_scalar import DataProcessorFactory
     data_processors = DataProcessorFactory()
     print('Implemented possible processing methods, can be applied to any data type and dimensionality')
     print(data_processors.keys)

@@ -47,14 +47,14 @@ First I create a hdf5 file using the H5Saver (here H5SaverLowLevel because I'm n
 
 >>> import numpy as np
 >>> from pathlib import Path
->>> from pymodaq.utils.data import Axis
->>> from pymodaq.utils.h5modules.saving import H5SaverLowLevel
+>>> from pymodaq_data.data import Axis
+>>> from pymodaq_data.h5modules.saving import H5SaverLowLevel
 >>> h5saver = H5SaverLowLevel()
 >>> h5saver.init_file(Path('atemporaryfile.h5'))
 
 Then I create the Axis object and its saver/loader
 
->>> from pymodaq.utils.h5modules.data_saving import AxisSaverLoader
+>>> from pymodaq_data.h5modules.data_saving import AxisSaverLoader
 >>> axis = Axis('myaxis', units='seconds', data=np.array([3,7,11,15]), index=0)
 >>> axis_saver = AxisSaverLoader(h5saver)
 
@@ -99,7 +99,7 @@ to be saved as background data type.
 
 Here I create my data and background object:
 
->>> from pymodaq.utils.data import DataWithAxes, DataSource, DataDim, DataDistribution
+>>> from pymodaq_data.data import DataWithAxes, DataSource, DataDim, DataDistribution
 >>> data = DataWithAxes('mydata', source=DataSource['raw'], dim=DataDim['Data2D'], \
 distribution=DataDistribution['uniform'], data=[np.array([[1,2,3], [4,5,6]])],\
 axes=[Axis('vaxis', index=0, data=np.array([-1, 1])),
@@ -118,7 +118,7 @@ I add a *detector* node in the h5file:
 
 and save in this node the data:
 
->>> from pymodaq.utils.h5modules.data_saving import DataSaverLoader
+>>> from pymodaq_data.h5modules.data_saving import DataSaverLoader
 >>> datasaver = DataSaverLoader(h5saver)
 >>> datasaver.add_data('/RawData/Detector000', data)
 
@@ -147,7 +147,7 @@ False
 
 Now about the background:
 
->>> from pymodaq.utils.h5modules.data_saving import BkgSaver
+>>> from pymodaq_data.h5modules.data_saving import BkgSaver
 >>> bkgsaver = BkgSaver(h5saver)
 >>> bkgsaver.add_data('/RawData/Detector000', data, save_axes=False)
 
@@ -187,7 +187,7 @@ The only difference here, is that it won't be able to load the data back to a dt
 Let's say I create a ``DataToExport`` containing 0D, 1D and 2D DataWithAxes (see the tests file):
 
 >>> dte = DataToExport(name='mybigdata', data=[data2D, data0D, data1D, data0Dbis])
->>> from pymodaq.utils.h5modules.data_saving import DataToExportSaver
+>>> from pymodaq_data.h5modules.data_saving import DataToExportSaver
 >>> dte_saver = DataToExportSaver(h5saver)
 
 
