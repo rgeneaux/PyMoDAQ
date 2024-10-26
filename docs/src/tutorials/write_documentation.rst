@@ -78,9 +78,10 @@ First we need to know on which branch of the `upstream repository`__ we will wor
 __ https://github.com/PyMoDAQ/PyMoDAQ/
 
 .. note::
-	The important branches of the PyMoDAQ repository are as follow:
-		* **4.4.x** is the last stable version (in october 2024 :) if you update the documentation in this branch, it will update the 4.4.x version of the documentation
-		* **5.0.x_dev** is the last development version as mentionned previously updating the documentation in this branch only update the corresponding version of the website documentation
+	The important branches (and naming rules) of the PyMoDAQ repository are as follow:
+		* **4.4.x** is the last stable version (in october 2024 :) ). It will remain as a long term support version. Pull request on this branch are just for bug fixes. If you update the documentation in this branch, it will update the 4.4.x version of the documentation.
+		* **5.0.x** when it's available as a stable release.
+		* **5.0.x_dev** is the last development version as mentionned previously updating the documentation in this branch only update the corresponding version of the website documentation. Improvements and new features should be send on this branch. The owner of the repository will test all the changes that has been suggested in the corresponding dev branch (ie: 5.0.x_dev) before sending them into the stable branch (ie: 5.0.x)
 
 .. note::
 	Here is how to check the different versions of the documentation on the website :
