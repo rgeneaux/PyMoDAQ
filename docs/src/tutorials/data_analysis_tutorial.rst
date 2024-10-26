@@ -356,7 +356,7 @@ Resampling
 
 .. code:: ipython3
 
-    from pymodaq_utils.utils import math_utils as mutils
+    from pymodaq_utils import math_utils as mutils
     from pymodaq_data.data import Axis
     phonon_axis_array = dwa_phonons.get_axis_from_index(0)[0].get_data()
     phonon_axis_array -= phonon_axis_array[0]
