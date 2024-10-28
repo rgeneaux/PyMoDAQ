@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from importlib import import_module
 from packaging import version as version_mod
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, TYPE_CHECKING
 
 
 from qtpy import QtGui, QtWidgets, QtCore
@@ -41,6 +41,8 @@ from pymodaq.utils.daq_utils import get_instrument_plugins
 from pymodaq.utils.leco.utils import start_coordinator
 from pymodaq.utils import config as config_mod_pymodaq
 
+from pymodaq.control_modules.daq_move import DAQ_Move
+from pymodaq.control_modules.daq_viewer import DAQ_Viewer
 
 logger = set_logger(get_module_name(__file__))
 
@@ -57,14 +59,6 @@ roi_path = config_mod_pymodaq.get_set_roi_path()
 remote_path = config_mod_pymodaq.get_set_remote_path()
 
 
-
-
-from pymodaq.control_modules.daq_move import DAQ_Move
-from pymodaq.control_modules.daq_viewer import DAQ_Viewer
-from pymodaq import extensions as extmod
-extensions = extmod.get_extensions()
-
-
 class DashBoard(CustomApp):
     """
     Main class initializing a DashBoard interface to display det and move modules and logger """
@@ -73,6 +67,7 @@ class DashBoard(CustomApp):
     new_preset_created = Signal()
 
     settings_name = 'dashboard_settings'
+    _splash_sc = None
 
     params = [
             {'title': 'Log level', 'name': 'log_level', 'type': 'list',
@@ -121,9 +116,6 @@ class DashBoard(CustomApp):
         self.dockarea.dock_signal.connect(self.save_layout_state_auto)
 
         self.title = ''
-        splash_path = Path(__file__).parent.joinpath('splash.png')
-        splash = QtGui.QPixmap(str(splash_path))
-        self.splash_sc = QtWidgets.QSplashScreen(splash, Qt.WindowStaysOnTopHint)
 
         self.overshoot_manager = None
         self.preset_manager = None
@@ -150,6 +142,19 @@ class DashBoard(CustomApp):
 
         if config('general', 'check_version'):
             self.check_version(show=False)
+
+    @classmethod
+    @property
+    def splash_sc(cls) -> QtWidgets.QSplashScreen:
+        if cls._splash_sc is None:
+            splash_path = Path(__file__).parent.joinpath('splash.png')
+            splash = QtGui.QPixmap(str(splash_path))
+            _splash_sc = QtWidgets.QSplashScreen(splash, Qt.WindowStaysOnTopHint)
+            font = _splash_sc.font()
+            font.setPixelSize(18)
+            _splash_sc.setFont(font)
+            cls._splash_sc = _splash_sc
+        return cls._splash_sc
 
     def set_preset_path(self, path):
         self.preset_path = path
@@ -1616,9 +1621,26 @@ class DashBoard(CustomApp):
             pass
 
 
-def main():
+if __name__ == '__main__':
     from pymodaq_gui.utils.utils import mkQApp
+
     app = mkQApp('Dashboard')
+
+    sc: QtWidgets.QSplashScreen = DashBoard.splash_sc
+    sc.show()
+    sc.showMessage('Loading the instrument plugins',
+                   QtCore.Qt.AlignRight, QtCore.Qt.white)
+    get_instrument_plugins()
+
+
+    from pymodaq import extensions as extmod
+
+    sc.showMessage('Loading the extension plugins',
+                   QtCore.Qt.AlignRight, QtCore.Qt.white)
+    extensions = extmod.get_extensions()
+
+    sc.showMessage('Loading the Dashboard extension',
+                   QtCore.Qt.AlignRight, QtCore.Qt.white)
 
     win = QtWidgets.QMainWindow()
     area = DockArea()
@@ -1626,12 +1648,9 @@ def main():
     win.resize(1000, 500)
     win.setWindowTitle('PyMoDAQ Dashboard')
 
-    # win.setVisible(False)
     prog = DashBoard(area)
+    sc.close()
+
+    win.show()
 
     app.exec()
-    return prog, win
-
-
-if __name__ == '__main__':
-    main()
