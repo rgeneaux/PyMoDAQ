@@ -1,27 +1,18 @@
-import sys
-
-from qtpy.QtCore import QObject, Signal, QEvent, QBuffer, QIODevice, Qt
-from qtpy import QtWidgets, QtCore, QtGui
-
-from pathlib import Path
 from pymodaq_utils.config import Config
 from pymodaq_utils.logger import set_logger, get_module_name
 
-from pymodaq_gui.utils.utils import mkQApp
+from pymodaq_gui.utils.splash import get_splash_sc
+
 
 config = Config()
 logger = set_logger(get_module_name(__file__))
 
+from pymodaq_utils.warnings import deprecation_msg
 
-def get_splash_sc():
-    here = Path(__file__)
-    splash_sc = QtWidgets.QSplashScreen(
-        QtGui.QPixmap(str(here.parent.parent.parent.joinpath('splash.png'))),
-        Qt.WindowStaysOnTopHint)
-    font = splash_sc.font()
-    font.setPixelSize(18)
-    splash_sc.setFont(font)
+deprecation_msg('Importing get_splash_sc stuff from pymodaq is deprecated '
+                'in pymodaq>5.0.0,'
+                'please use the same method from the '
+                'pymodaq_gui.utils.splash module')
 
-    return splash_sc
 
 
