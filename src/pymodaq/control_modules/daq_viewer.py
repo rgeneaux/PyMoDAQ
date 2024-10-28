@@ -1018,7 +1018,8 @@ class DAQ_Viewer(ParameterControlModule):
         if self.settings.child('main_settings', 'overshoot', 'stop_overshoot').value():
             for dwa in dte:
                 for data_array in dwa.data:
-                    if any(data_array >= self.settings.child('main_settings', 'overshoot', 'overshoot_value').value()):
+                    if np.any(data_array >= self.settings['main_settings', 'overshoot',
+                                                          'overshoot_value']):
                         self.overshoot_signal.emit(True)
 
     def get_scaling_options(self):
