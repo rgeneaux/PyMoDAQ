@@ -144,6 +144,8 @@ class DashBoard(CustomApp):
 
         self.setup_ui()
 
+        self.mainwindow.setVisible(True)
+
         logger.info('Dashboard Initialized')
 
         if config('general', 'check_version'):
@@ -322,13 +324,15 @@ class DashBoard(CustomApp):
         for ind_file, file in enumerate(self.preset_path.iterdir()):
             if file.suffix == '.xml':
                 filestem = file.stem
-                self.add_action(filestem, filestem, '', f'Load the {filestem}.xml preset')
+                self.add_action(filestem, filestem, '', f'Load the {filestem}.xml preset',
+                                auto_toolbar=False)
                 presets.append(filestem)
 
-        self.add_widget('preset_list', QtWidgets.QListWidget, toolbar=self.toolbar,
+        self.add_widget('preset_list', QtWidgets.QComboBox, toolbar=self.toolbar,
                         signal_str='currentTextChanged', slot=self.update_preset_action)
+        self.add_action('load_preset', 'LOAD', 'Open',
+                        tip='Load the selected Preset: ')
         self.get_action('preset_list').addItems(presets)
-        self.add_action('load_preset', 'LOAD', '')
         self.add_action('new_overshoot', 'New Overshoot', '',
                         'Create a new experimental setup overshoot configuration file',
                         auto_toolbar=False)
@@ -360,8 +364,22 @@ class DashBoard(CustomApp):
                 remote_file = f'{filestem}_remote'
                 self.add_action(remote_file, filestem, '', auto_toolbar=False)
 
+        self.add_action('do_scan', 'Do Scans', 'surfacePlot',
+                        tip='Open the DAQ Scan extension to acquire data as a function of '
+                            'one or more parameter')
+        self.add_action('do_log', 'Log data', '', auto_toolbar=False)
+        self.add_action('do_pid', 'PID module', auto_toolbar=False)
+        self.add_action('console', 'IPython Console', auto_toolbar=False)
+        self.add_action('bayesian', 'Bayesian Optimisation', auto_toolbar=False)
+
+        self.add_action('about', 'About', 'information2')
+        self.add_action('help', 'Help', 'help1')
+        self.get_action('help').setShortcut(QtGui.QKeySequence('F1'))
+        self.add_action('check_version', 'Check Version', '', auto_toolbar=False)
+        self.add_action('plugin_manager', 'Plugin Manager', '')
+
     def update_preset_action(self, preset_name: str):
-        self.get_action('load_preset').setText(f'LOAD {preset_name} preset!')
+        self.get_action('load_preset').setToolTip(f'Load the {preset_name}.xml preset file!')
 
     def connect_things(self):
         self.status_signal[str].connect(self.add_status)
@@ -383,7 +401,8 @@ class DashBoard(CustomApp):
                                     self.create_menu_slot(self.preset_path.joinpath(file)))
         self.connect_action('load_preset',
                             lambda: self.set_preset_mode(
-                                self.get_action('preset_list').currentItem().text()))
+                                self.preset_path.joinpath(
+                                    f"{self.get_action('preset_list').currentText()}.xml")))
         self.connect_action('new_overshoot', self.create_overshoot)
         self.connect_action('modify_overshoot', self.modify_overshoot)
 
@@ -391,7 +410,7 @@ class DashBoard(CustomApp):
             if file.suffix == '.xml':
                 filestem = file.stem
                 overshoot_short = f'{filestem}_over'
-                self.connect_action(self.get_action(overshoot_short),
+                self.connect_action(overshoot_short,
                     self.create_menu_slot_over(
                         config_mod_pymodaq.get_set_overshoot_path().joinpath(file)))
 
@@ -414,6 +433,17 @@ class DashBoard(CustomApp):
                 self.connect_action(remote_file,
                     self.create_menu_slot_remote(
                         config_mod_pymodaq.get_set_remote_path().joinpath(file)))
+
+        self.connect_action('do_scan', lambda: self.load_scan_module())
+        self.connect_action('do_log', lambda: self.load_log_module())
+        self.connect_action('do_pid', lambda: self.load_pid_module())
+        self.connect_action('console', lambda: self.load_console())
+        self.connect_action('bayesian', lambda: self.load_bayesian())
+
+        self.connect_action('about', self.show_about)
+        self.connect_action('help', self.show_help)
+        self.connect_action('check_version', lambda: self.check_version(True))
+        self.connect_action('plugin_manager', self.start_plugin_manager)
 
     def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
         """
@@ -487,37 +517,25 @@ class DashBoard(CustomApp):
 
         # extensions menu
         self.extensions_menu = menubar.addMenu('Extensions')
-        action_scan = self.extensions_menu.addAction('Do Scans')
-        action_scan.triggered.connect(lambda: self.load_scan_module())
-        action_log = self.extensions_menu.addAction('Log data')
-        action_log.triggered.connect(lambda: self.load_log_module())
-        action_pid = self.extensions_menu.addAction('PID module')
-        action_pid.triggered.connect(lambda: self.load_pid_module())
-        action_console = self.extensions_menu.addAction('IPython Console')
-        action_console.triggered.connect(lambda: self.load_console())
-        action_bayesian = self.extensions_menu.addAction('Bayesian Optimisation')
-        action_bayesian.triggered.connect(lambda: self.load_bayesian())
+        self.extensions_menu.addAction(self.get_action('do_scan'))
+        self.extensions_menu.addAction(self.get_action('do_log'))
+        self.extensions_menu.addAction(self.get_action('do_pid'))
+        self.extensions_menu.addAction(self.get_action('console'))
+        self.extensions_menu.addAction(self.get_action('bayesian'))
 
+        # extensions from plugins
         extensions_actions = []
         for ext in extensions:
             extensions_actions.append(self.extensions_menu.addAction(ext['name']))
             extensions_actions[-1].triggered.connect(self.create_menu_slot_ext(ext))
 
-
         # help menu
         help_menu = menubar.addMenu('?')
-        action_about = help_menu.addAction('About')
-        action_about.triggered.connect(self.show_about)
-        action_help = help_menu.addAction('Help')
-        action_help.triggered.connect(self.show_help)
-        action_help.setShortcut(QtGui.QKeySequence('F1'))
-
+        help_menu.addAction(self.get_action('about'))
+        help_menu.addAction(self.get_action('help'))
         help_menu.addSeparator()
-        action_update = help_menu.addAction('Check Version')
-        action_update.triggered.connect(lambda: self.check_version(True))
-
-        action_plugin_manager = help_menu.addAction('Plugin Manager')
-        action_plugin_manager.triggered.connect(self.start_plugin_manager)
+        help_menu.addAction(self.get_action('check_version'))
+        help_menu.addAction(self.get_action('plugin_manager'))
 
         self.overshoot_menu.setEnabled(False)
         self.roi_menu.setEnabled(False)
