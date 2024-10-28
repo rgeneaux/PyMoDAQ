@@ -18,6 +18,10 @@ def get_splash_sc():
     splash_sc = QtWidgets.QSplashScreen(
         QtGui.QPixmap(str(here.parent.parent.parent.joinpath('splash.png'))),
         Qt.WindowStaysOnTopHint)
+    font = splash_sc.font()
+    font.setPixelSize(18)
+    splash_sc.setFont(font)
+
     return splash_sc
 
 

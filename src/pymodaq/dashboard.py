@@ -43,6 +43,7 @@ from pymodaq.utils import config as config_mod_pymodaq
 
 from pymodaq.control_modules.daq_move import DAQ_Move
 from pymodaq.control_modules.daq_viewer import DAQ_Viewer
+from pymodaq.utils.gui_utils import get_splash_sc
 
 logger = set_logger(get_module_name(__file__))
 
@@ -147,13 +148,7 @@ class DashBoard(CustomApp):
     @property
     def splash_sc(cls) -> QtWidgets.QSplashScreen:
         if cls._splash_sc is None:
-            splash_path = Path(__file__).parent.joinpath('splash.png')
-            splash = QtGui.QPixmap(str(splash_path))
-            _splash_sc = QtWidgets.QSplashScreen(splash, Qt.WindowStaysOnTopHint)
-            font = _splash_sc.font()
-            font.setPixelSize(18)
-            _splash_sc.setFont(font)
-            cls._splash_sc = _splash_sc
+            cls._splash_sc = get_splash_sc()
         return cls._splash_sc
 
     def set_preset_path(self, path):
