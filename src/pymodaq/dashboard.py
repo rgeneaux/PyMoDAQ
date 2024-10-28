@@ -40,12 +40,7 @@ from pymodaq.utils.exceptions import DetectorError, ActuatorError, MasterSlaveEr
 from pymodaq.utils.daq_utils import get_instrument_plugins
 from pymodaq.utils.leco.utils import start_coordinator
 from pymodaq.utils import config as config_mod_pymodaq
-from pymodaq.control_modules.daq_move import DAQ_Move
-from pymodaq.control_modules.daq_viewer import DAQ_Viewer
-from pymodaq import extensions as extmod
 
-
-get_instrument_plugins()
 
 logger = set_logger(get_module_name(__file__))
 
@@ -61,6 +56,12 @@ overshoot_path = config_mod_pymodaq.get_set_overshoot_path()
 roi_path = config_mod_pymodaq.get_set_roi_path()
 remote_path = config_mod_pymodaq.get_set_remote_path()
 
+
+
+
+from pymodaq.control_modules.daq_move import DAQ_Move
+from pymodaq.control_modules.daq_viewer import DAQ_Viewer
+from pymodaq import extensions as extmod
 extensions = extmod.get_extensions()
 
 
@@ -121,10 +122,9 @@ class DashBoard(CustomApp):
 
         self.title = ''
         splash_path = Path(__file__).parent.joinpath('splash.png')
-
         splash = QtGui.QPixmap(str(splash_path))
-
         self.splash_sc = QtWidgets.QSplashScreen(splash, Qt.WindowStaysOnTopHint)
+
         self.overshoot_manager = None
         self.preset_manager = None
         self.roi_saver: ROISaver = None
@@ -574,6 +574,7 @@ class DashBoard(CustomApp):
         try:
             if self.preset_file is not None:
                 self.roi_saver.set_new_roi(self.preset_file.stem)
+                self.add_action(f'{self.preset_file.stem}_roi', self.preset_file.stem, '')
                 self.setup_menu(self.menubar)
 
         except Exception as e:
@@ -583,6 +584,7 @@ class DashBoard(CustomApp):
         try:
             if self.preset_file is not None:
                 self.remote_manager.set_new_remote(self.preset_file.stem)
+                self.add_action(f'{self.preset_file.stem}_remote', self.preset_file.stem, '')
                 self.setup_menu(self.menubar)
 
         except Exception as e:
@@ -592,6 +594,7 @@ class DashBoard(CustomApp):
         try:
             if self.preset_file is not None:
                 self.overshoot_manager.set_new_overshoot(self.preset_file.stem)
+                self.add_action(f'{self.preset_file.stem}_over', self.preset_file.stem, '')
                 self.setup_menu(self.menubar)
         except Exception as e:
             logger.exception(str(e))
@@ -599,6 +602,7 @@ class DashBoard(CustomApp):
     def create_preset(self):
         try:
             self.preset_manager.set_new_preset()
+            self.add_action(self.preset_file.stem, self.preset_file.stem, '')
             self.setup_menu(self.menubar)
             self.new_preset_created.emit()
         except Exception as e:
@@ -1262,7 +1266,7 @@ class DashBoard(CustomApp):
 
                 for det_param in self.overshoot_manager.overshoot_params.child(
                         'Detectors').children():
-                    if det_param.child(('trig_overshoot')).value():
+                    if det_param['trig_overshoot']:
                         det_index = det_titles.index(det_param.opts['title'])
                         det_module = self.detector_modules[det_index]
                         det_module.settings.child(
@@ -1270,7 +1274,7 @@ class DashBoard(CustomApp):
                         det_module.settings.child(
                             'main_settings', 'overshoot', 'overshoot_value').setValue(
                             det_param['overshoot_value'])
-                        for move_param in det_param.child(('params')).children():
+                        for move_param in det_param.child('params').children():
                             if move_param['move_overshoot']:
                                 move_index = move_titles.index(move_param.opts['title'])
                                 move_module = self.actuators_modules[move_index]
@@ -1319,6 +1323,9 @@ class DashBoard(CustomApp):
         try:
             if not isinstance(filename, Path):
                 filename = Path(filename)
+
+            self.get_action('preset_list').setCurrentText(filename.stem)
+
             self.mainwindow.setVisible(False)
             for area in self.dockarea.tempAreas:
                 area.window().setVisible(False)
@@ -1396,6 +1403,7 @@ class DashBoard(CustomApp):
 
                 self.load_preset_menu.setEnabled(False)
                 self.set_action_enabled('load_preset', False)
+                self.set_action_enabled('preset_list', False)
                 self.overshoot_menu.setEnabled(True)
                 self.roi_menu.setEnabled(True)
                 self.remote_menu.setEnabled(True)
@@ -1620,6 +1628,7 @@ def main():
 
     # win.setVisible(False)
     prog = DashBoard(area)
+
     app.exec()
     return prog, win
 
