@@ -1395,6 +1395,7 @@ class DashBoard(CustomApp):
                     self.pid_window.show()
 
                 self.load_preset_menu.setEnabled(False)
+                self.set_action_enabled('load_preset', False)
                 self.overshoot_menu.setEnabled(True)
                 self.roi_menu.setEnabled(True)
                 self.remote_menu.setEnabled(True)
