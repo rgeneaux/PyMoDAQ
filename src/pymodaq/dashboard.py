@@ -325,9 +325,9 @@ class DashBoard(CustomApp):
                 self.add_action(filestem, filestem, '', f'Load the {filestem}.xml preset')
                 presets.append(filestem)
 
-        self.add_widget('preset_list', QtWidgets.QListWidget, toolbar=self.toolbar)
+        self.add_widget('preset_list', QtWidgets.QListWidget, toolbar=self.toolbar,)
         self.get_action('preset_list').addItems(presets)
-        self.add_action('daq_scan', 'DAQ SCAN', '')
+        self.add_action('load_preset', 'LOAD', '')
         self.add_action('new_overshoot', 'New Overshoot', '',
                         'Create a new experimental setup overshoot configuration file',
                         auto_toolbar=False)
@@ -344,7 +344,20 @@ class DashBoard(CustomApp):
 
         self.add_action('save_roi', 'Save ROIs as a file', '', auto_toolbar=False)
         self.add_action('modify_roi', 'Modify ROI file', '', auto_toolbar=False)
-        self.add_action('load_roi', 'Load ROI file', '', auto_toolbar=False)
+
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
+            if file.suffix == '.xml':
+                filestem = file.stem
+                roi_file = f'{filestem}_roi'
+                self.add_action(roi_file, filestem, '', auto_toolbar=False)
+
+        self.add_action('new_remote', 'Create New Remote', '', auto_toolbar=False)
+        self.add_action('modify_remote', 'Modify Remote file', '', auto_toolbar=False)
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
+            if file.suffix == '.xml':
+                filestem = file.stem
+                remote_file = f'{filestem}_remote'
+                self.add_action(remote_file, filestem, '', auto_toolbar=False)
 
     def connect_things(self):
         self.status_signal[str].connect(self.add_status)
@@ -364,7 +377,7 @@ class DashBoard(CustomApp):
                 filestem = file.stem
                 self.connect_action(filestem,
                                     self.create_menu_slot(self.preset_path.joinpath(file)))
-        self.connect_action('daq_scan',
+        self.connect_action('load_preset',
                             lambda: self.set_preset_mode(
                                 self.get_action('preset_list').currentItem().text()))
         self.connect_action('new_overshoot', self.create_overshoot)
@@ -380,8 +393,23 @@ class DashBoard(CustomApp):
 
         self.connect_action('save_roi', self.create_roi_file)
         self.connect_action('modify_roi', self.modify_roi)
-        self.connect_action('load_roi', self.load)
 
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
+            if file.suffix == '.xml':
+                filestem = file.stem
+                roi_file = f'{filestem}_roi'
+                self.connect_action(roi_file,
+                    self.create_menu_slot_roi(config_mod_pymodaq.get_set_roi_path().joinpath(file)))
+
+        self.connect_action('new_remote', self.create_remote)
+        self.connect_action('modify_remote', self.modify_remote)
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
+            if file.suffix == '.xml':
+                filestem = file.stem
+                remote_file = f'{filestem}_remote'
+                self.connect_action(remote_file,
+                    self.create_menu_slot_remote(
+                        config_mod_pymodaq.get_set_remote_path().joinpath(file)))
 
     def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
         """
@@ -433,47 +461,42 @@ class DashBoard(CustomApp):
         self.roi_menu.addAction(self.get_action('save_roi'))
         self.roi_menu.addAction(self.get_action('modify_roi'))
         self.roi_menu.addSeparator()
-        load_roi = self.roi_menu.addMenu('Load roi configs')
+        load_roi_menu = self.roi_menu.addMenu('Load roi configs')
 
-        slots = dict([])
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
             if file.suffix == '.xml':
                 filestem = file.stem
-                slots[filestem] = load_roi.addAction(filestem)
-                slots[filestem].triggered.connect(
-                    self.create_menu_slot_roi(config_mod_pymodaq.get_set_roi_path().joinpath(file)))
+                roi_file = f'{filestem}_roi'
+                load_roi_menu.addAction(self.get_action(roi_file))
 
         self.remote_menu = menubar.addMenu('Remote/Shortcuts Control')
         self.remote_menu.addAction('New remote config.', self.create_remote)
         self.remote_menu.addAction('Modify remote config.', self.modify_remote)
         self.remote_menu.addSeparator()
-        load_remote = self.remote_menu.addMenu('Load remote config.')
+        load_remote_menu = self.remote_menu.addMenu('Load remote config.')
 
-        slots = dict([])
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
             if file.suffix == '.xml':
                 filestem = file.stem
-                slots[filestem] = load_remote.addAction(filestem)
-                slots[filestem].triggered.connect(
-                    self.create_menu_slot_remote(
-                        config_mod_pymodaq.get_set_remote_path().joinpath(file)))
+                remote_file = f'{filestem}_remote'
+                load_remote_menu.addAction(self.get_action(remote_file))
 
-        # actions menu
-        self.actions_menu = menubar.addMenu('Extensions')
-        action_scan = self.actions_menu.addAction('Do Scans')
+        # extensions menu
+        self.extensions_menu = menubar.addMenu('Extensions')
+        action_scan = self.extensions_menu.addAction('Do Scans')
         action_scan.triggered.connect(lambda: self.load_scan_module())
-        action_log = self.actions_menu.addAction('Log data')
+        action_log = self.extensions_menu.addAction('Log data')
         action_log.triggered.connect(lambda: self.load_log_module())
-        action_pid = self.actions_menu.addAction('PID module')
+        action_pid = self.extensions_menu.addAction('PID module')
         action_pid.triggered.connect(lambda: self.load_pid_module())
-        action_console = self.actions_menu.addAction('IPython Console')
+        action_console = self.extensions_menu.addAction('IPython Console')
         action_console.triggered.connect(lambda: self.load_console())
-        action_bayesian = self.actions_menu.addAction('Bayesian Optimisation')
+        action_bayesian = self.extensions_menu.addAction('Bayesian Optimisation')
         action_bayesian.triggered.connect(lambda: self.load_bayesian())
 
         extensions_actions = []
         for ext in extensions:
-            extensions_actions.append(self.actions_menu.addAction(ext['name']))
+            extensions_actions.append(self.extensions_menu.addAction(ext['name']))
             extensions_actions[-1].triggered.connect(self.create_menu_slot_ext(ext))
 
 
@@ -495,7 +518,7 @@ class DashBoard(CustomApp):
         self.overshoot_menu.setEnabled(False)
         self.roi_menu.setEnabled(False)
         self.remote_menu.setEnabled(False)
-        self.actions_menu.setEnabled(False)
+        self.extensions_menu.setEnabled(False)
         self.file_menu.setEnabled(True)
         self.settings_menu.setEnabled(True)
         self.preset_menu.setEnabled(True)
@@ -1353,7 +1376,7 @@ class DashBoard(CustomApp):
                 self.overshoot_menu.setEnabled(True)
                 self.roi_menu.setEnabled(True)
                 self.remote_menu.setEnabled(True)
-                self.actions_menu.setEnabled(True)
+                self.extensions_menu.setEnabled(True)
                 self.file_menu.setEnabled(True)
                 self.settings_menu.setEnabled(True)
                 self.update_init_tree()
