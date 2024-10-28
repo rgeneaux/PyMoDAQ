@@ -325,7 +325,8 @@ class DashBoard(CustomApp):
                 self.add_action(filestem, filestem, '', f'Load the {filestem}.xml preset')
                 presets.append(filestem)
 
-        self.add_widget('preset_list', QtWidgets.QListWidget, toolbar=self.toolbar,)
+        self.add_widget('preset_list', QtWidgets.QListWidget, toolbar=self.toolbar,
+                        signal_str='currentTextChanged', slot=self.update_preset_action)
         self.get_action('preset_list').addItems(presets)
         self.add_action('load_preset', 'LOAD', '')
         self.add_action('new_overshoot', 'New Overshoot', '',
@@ -358,6 +359,9 @@ class DashBoard(CustomApp):
                 filestem = file.stem
                 remote_file = f'{filestem}_remote'
                 self.add_action(remote_file, filestem, '', auto_toolbar=False)
+
+    def update_preset_action(self, preset_name: str):
+        self.get_action('load_preset').setText(f'LOAD {preset_name} preset!')
 
     def connect_things(self):
         self.status_signal[str].connect(self.add_status)
