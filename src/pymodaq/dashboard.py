@@ -45,10 +45,14 @@ from pymodaq.control_modules.daq_move import DAQ_Move
 from pymodaq.control_modules.daq_viewer import DAQ_Viewer
 from pymodaq.utils.gui_utils import get_splash_sc
 
+from pymodaq import extensions as extmod
+
 logger = set_logger(get_module_name(__file__))
-
-
 config = configmod.Config()
+
+get_instrument_plugins()
+extensions = extmod.get_extensions()
+
 
 local_path = configmod.get_set_local_dir()
 now = datetime.datetime.now()
@@ -794,7 +798,7 @@ class DashBoard(CustomApp):
                 mssg = f'Could not set this setting: {str(e)}\n' \
                        f'The Preset is no more compatible with the plugin {plug_type}'
                 logger.warning(mssg)
-                self.splash_sc.showMessage(mssg, color=Qt.white)
+                self.splash_sc.showMessage(mssg)
         QtWidgets.QApplication.processEvents()
 
         mov_mod_tmp.bounds_signal[bool].connect(self.stop_moves)
@@ -863,7 +867,7 @@ class DashBoard(CustomApp):
                 mssg = f'Could not set this setting: {str(e)}\n' \
                        f'The Preset is no more compatible with the plugin {plug_subtype}'
                 logger.warning(mssg)
-                self.splash_sc.showMessage(mssg, color=Qt.white)
+                self.splash_sc.showMessage(mssg)
 
         detector_modules.append(det_mod_tmp)
         return det_mod_tmp
@@ -980,8 +984,7 @@ class DashBoard(CustomApp):
                     plug_init = plugin['value'].child('init').value()
                     plug_settings = plugin['value'].child('params')
                     self.splash_sc.showMessage(
-                        'Loading {:s} module: {:s}'.format(plugin['type'], plug_name),
-                        color=Qt.white)
+                        'Loading {:s} module: {:s}'.format(plugin['type'], plug_name))
 
                     if plugin['type'] == 'move':
                         plug_type = plug_settings.child('main_settings', 'move_type').value()
@@ -1333,7 +1336,7 @@ class DashBoard(CustomApp):
             self.splash_sc.show()
             QtWidgets.QApplication.processEvents()
             self.splash_sc.raise_()
-            self.splash_sc.showMessage('Loading Modules, please wait', color=Qt.white)
+            self.splash_sc.showMessage('Loading Modules, please wait')
             QtWidgets.QApplication.processEvents()
             self.clear_move_det_controllers()
             QtWidgets.QApplication.processEvents()
@@ -1519,8 +1522,7 @@ class DashBoard(CustomApp):
         self.splash_sc.showMessage(
             f"PyMoDAQ version {get_version('pymodaq')}\n"
             f"Modular Acquisition with Python\n"
-            f"Written by Sébastien Weber",
-            QtCore.Qt.AlignRight, QtCore.Qt.white)
+            f"Written by Sébastien Weber")
 
     def check_version(self, show=True):
         try:
@@ -1616,26 +1618,10 @@ class DashBoard(CustomApp):
             pass
 
 
-if __name__ == '__main__':
+def main():
     from pymodaq_gui.utils.utils import mkQApp
 
     app = mkQApp('Dashboard')
-
-    sc: QtWidgets.QSplashScreen = DashBoard.splash_sc
-    sc.show()
-    sc.showMessage('Loading the instrument plugins',
-                   QtCore.Qt.AlignRight, QtCore.Qt.white)
-    get_instrument_plugins()
-
-
-    from pymodaq import extensions as extmod
-
-    sc.showMessage('Loading the extension plugins',
-                   QtCore.Qt.AlignRight, QtCore.Qt.white)
-    extensions = extmod.get_extensions()
-
-    sc.showMessage('Loading the Dashboard extension',
-                   QtCore.Qt.AlignRight, QtCore.Qt.white)
 
     win = QtWidgets.QMainWindow()
     area = DockArea()
@@ -1644,8 +1630,11 @@ if __name__ == '__main__':
     win.setWindowTitle('PyMoDAQ Dashboard')
 
     prog = DashBoard(area)
-    sc.close()
 
     win.show()
 
     app.exec()
+
+
+if __name__ == '__main__':
+   main()
