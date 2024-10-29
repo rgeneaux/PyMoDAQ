@@ -312,6 +312,7 @@ class DashBoard(CustomApp):
         self.add_action('log', 'Log File', '', "Show Log File in default editor",
                         auto_toolbar=False)
         self.add_action('quit', 'Quit', 'close2', "Quit program")
+        self.toolbar.addSeparator()
         self.add_action('config', 'Configuration file', 'tree', "Show Log File in default editor")
         self.add_action('restart', 'Restart', '', "Restart the Dashboard",
                         auto_toolbar=False)
@@ -372,13 +373,14 @@ class DashBoard(CustomApp):
             if file.suffix == '.xml':
                 self.add_action(self.get_action_from_file(file, ManagerEnums.remote),
                                 file.stem, '', auto_toolbar=False)
-
-        self.add_action('do_scan', 'Do Scans', 'surfacePlot',
-                        tip='Open the DAQ Scan extension to acquire data as a function of '
-                            'one or more parameter')
         self.add_action('activate_overshoot', 'Activate overshoot', 'Error',
                         tip='if activated, apply an overshoot if one is configured',
                         checkable=True, enabled=False)
+        self.toolbar.addSeparator()
+        self.add_action('do_scan', 'Do Scans', 'surfacePlot',
+                        tip='Open the DAQ Scan extension to acquire data as a function of '
+                            'one or more parameter')
+        self.toolbar.addSeparator()
         self.add_action('do_log', 'Log data', '', auto_toolbar=False)
         self.add_action('do_pid', 'PID module', auto_toolbar=False)
         self.add_action('console', 'IPython Console', auto_toolbar=False)
@@ -388,6 +390,7 @@ class DashBoard(CustomApp):
         self.add_action('help', 'Help', 'help1')
         self.get_action('help').setShortcut(QtGui.QKeySequence('F1'))
         self.add_action('check_version', 'Check Version', '', auto_toolbar=False)
+        self.toolbar.addSeparator()
         self.add_action('plugin_manager', 'Plugin Manager', '')
 
     def update_preset_action(self, preset_name: str):
@@ -1638,4 +1641,4 @@ def main():
 
 
 if __name__ == '__main__':
-   main()
+    main()
