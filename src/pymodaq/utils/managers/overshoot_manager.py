@@ -118,6 +118,8 @@ class OvershootManager:
         self.det_modules = det_modules
         self.actuators_modules = actuators_modules
 
+        self._activated = False
+
         if msgbox:
             msgBox = QtWidgets.QMessageBox()
             msgBox.setText("Overshoot Manager?")
@@ -137,6 +139,14 @@ class OvershootManager:
                     self.set_file_overshoot(str(path))
             else:  # cancel
                 pass
+
+    @property
+    def activated(self) -> bool:
+        return self._activated
+
+    @activated.setter
+    def activated(self, status: bool):
+        self._activated = status
 
     def set_file_overshoot(self, filename, show=True):
         """
@@ -188,6 +198,38 @@ class OvershootManager:
             # start = os.path.join("..",'daq_scan')
             ioxml.parameter_to_xml_file(
                 self.overshoot_params, os.path.join(overshoot_path, self.overshoot_params.child('filename').value()))
+
+    def activate_overshoot(self, det_modules, act_modules, status: bool):
+        det_titles = [det.title for det in det_modules]
+        move_titles = [move.title for move in act_modules]
+
+        for det_param in self.overshoot_params.child(
+                'Detectors').children():
+            if det_param['trig_overshoot']:
+                det_index = det_titles.index(det_param.opts['title'])
+                det_module = det_modules[det_index]
+                det_module.settings.child(
+                    'main_settings', 'overshoot', 'stop_overshoot').setValue(status)
+                det_module.settings.child(
+                    'main_settings', 'overshoot', 'overshoot_value').setValue(
+                    det_param['overshoot_value'])
+                for move_param in det_param.child('params').children():
+                    if move_param['move_overshoot']:
+                        move_index = move_titles.index(move_param.opts['title'])
+                        move_module = act_modules[move_index]
+                        if status:
+                            det_module.overshoot_signal.connect(
+                                self.create_overshoot_fun(
+                                    move_module, move_param['position']))
+                        else:
+                            try:
+                                det_module.overshoot_signal.disconnect()
+                            except Exception as e:
+                                pass
+
+    @staticmethod
+    def create_overshoot_fun(move_module, position):
+        return lambda: move_module.move_abs(position)
 
 
 if __name__ == '__main__':

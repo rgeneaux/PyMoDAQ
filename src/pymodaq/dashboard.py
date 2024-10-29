@@ -376,6 +376,9 @@ class DashBoard(CustomApp):
         self.add_action('do_scan', 'Do Scans', 'surfacePlot',
                         tip='Open the DAQ Scan extension to acquire data as a function of '
                             'one or more parameter')
+        self.add_action('activate_overshoot', 'Activate overshoot', 'Error',
+                        tip='if activated, apply an overshoot if one is configured',
+                        checkable=True)
         self.add_action('do_log', 'Log data', '', auto_toolbar=False)
         self.add_action('do_pid', 'PID module', auto_toolbar=False)
         self.add_action('console', 'IPython Console', auto_toolbar=False)
@@ -413,6 +416,7 @@ class DashBoard(CustomApp):
                                     f"{self.get_action('preset_list').currentText()}.xml")))
         self.connect_action('new_overshoot', self.create_overshoot)
         self.connect_action('modify_overshoot', self.modify_overshoot)
+        self.connect_action('activate_overshoot', self.activate_overshoot)
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
             if file.suffix == '.xml':
@@ -484,6 +488,7 @@ class DashBoard(CustomApp):
         self.overshoot_menu = menubar.addMenu('Overshoot Modes')
         self.overshoot_menu.addAction(self.get_action('new_overshoot'))
         self.overshoot_menu.addAction(self.get_action('modify_overshoot'))
+        self.overshoot_menu.addAction(self.get_action('activate_overshoot'))
         self.overshoot_menu.addSeparator()
         load_overshoot_menu = self.overshoot_menu.addMenu('Load Overshoots')
 
@@ -1270,33 +1275,15 @@ class DashBoard(CustomApp):
                 self.update_status('Overshoot configuration ({}) has been loaded'.format(file),
                                    log_type='log')
                 self.overshoot_manager.set_file_overshoot(filename, show=False)
-
-                det_titles = [det.title for det in self.detector_modules]
-                move_titles = [move.title for move in self.actuators_modules]
-
-                for det_param in self.overshoot_manager.overshoot_params.child(
-                        'Detectors').children():
-                    if det_param['trig_overshoot']:
-                        det_index = det_titles.index(det_param.opts['title'])
-                        det_module = self.detector_modules[det_index]
-                        det_module.settings.child(
-                            'main_settings', 'overshoot', 'stop_overshoot').setValue(True)
-                        det_module.settings.child(
-                            'main_settings', 'overshoot', 'overshoot_value').setValue(
-                            det_param['overshoot_value'])
-                        for move_param in det_param.child('params').children():
-                            if move_param['move_overshoot']:
-                                move_index = move_titles.index(move_param.opts['title'])
-                                move_module = self.actuators_modules[move_index]
-                                det_module.overshoot_signal.connect(
-                                    self.create_overshoot_fun(
-                                        move_module, move_param['position']))
+                self.get_action('activate_overshoot').trigger()
 
         except Exception as e:
             logger.exception(str(e))
 
-    def create_overshoot_fun(self, move_module, position):
-        return lambda: move_module.move_abs(position)
+    def activate_overshoot(self, status: bool):
+        self.overshoot_manager.activate_overshoot(self.detector_modules,
+                                                  self.actuators_modules,
+                                                  status)
 
     @property
     def move_modules(self):
