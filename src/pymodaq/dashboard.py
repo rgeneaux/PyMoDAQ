@@ -23,6 +23,7 @@ from pymodaq_utils.logger import set_logger, get_module_name
 from pymodaq_utils import utils
 from pymodaq_utils.utils import get_version, find_dict_in_list_from_key_val
 from pymodaq_utils import config as configmod
+from pymodaq_utils.enums import BaseEnum
 
 from pymodaq_gui.parameter import ParameterTree, Parameter
 from pymodaq_gui.utils import DockArea, Dock, select_file
@@ -62,6 +63,13 @@ layout_path = config_mod_pymodaq.get_set_layout_path()
 overshoot_path = config_mod_pymodaq.get_set_overshoot_path()
 roi_path = config_mod_pymodaq.get_set_roi_path()
 remote_path = config_mod_pymodaq.get_set_remote_path()
+
+
+class ManagerEnums(BaseEnum):
+    preset = 0
+    remote = 1
+    overshoot = 2
+    roi = 3
 
 
 class DashBoard(CustomApp):
@@ -328,7 +336,8 @@ class DashBoard(CustomApp):
         for ind_file, file in enumerate(self.preset_path.iterdir()):
             if file.suffix == '.xml':
                 filestem = file.stem
-                self.add_action(filestem, filestem, '', f'Load the {filestem}.xml preset',
+                self.add_action(self.get_action_from_file(file, ManagerEnums.preset),
+                                filestem, '', f'Load the {filestem}.xml preset',
                                 auto_toolbar=False)
                 presets.append(filestem)
 
@@ -346,27 +355,23 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                overshoot_short = f'{filestem}_over'
-                self.add_action(overshoot_short, filestem,
-                        auto_toolbar=False)
+                self.add_action(self.get_action_from_file(file, ManagerEnums.overshoot), file.stem,
+                                auto_toolbar=False)
 
         self.add_action('save_roi', 'Save ROIs as a file', '', auto_toolbar=False)
         self.add_action('modify_roi', 'Modify ROI file', '', auto_toolbar=False)
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                roi_file = f'{filestem}_roi'
-                self.add_action(roi_file, filestem, '', auto_toolbar=False)
+                self.add_action(self.get_action_from_file(file, ManagerEnums.roi), file.stem,
+                                '', auto_toolbar=False)
 
         self.add_action('new_remote', 'Create New Remote', '', auto_toolbar=False)
         self.add_action('modify_remote', 'Modify Remote file', '', auto_toolbar=False)
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                remote_file = f'{filestem}_remote'
-                self.add_action(remote_file, filestem, '', auto_toolbar=False)
+                self.add_action(self.get_action_from_file(file, ManagerEnums.remote),
+                                file.stem, '', auto_toolbar=False)
 
         self.add_action('do_scan', 'Do Scans', 'surfacePlot',
                         tip='Open the DAQ Scan extension to acquire data as a function of '
@@ -400,8 +405,7 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(self.preset_path.iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                self.connect_action(filestem,
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.preset),
                                     self.create_menu_slot(self.preset_path.joinpath(file)))
         self.connect_action('load_preset',
                             lambda: self.set_preset_mode(
@@ -412,9 +416,7 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                overshoot_short = f'{filestem}_over'
-                self.connect_action(overshoot_short,
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.overshoot),
                     self.create_menu_slot_over(
                         config_mod_pymodaq.get_set_overshoot_path().joinpath(file)))
 
@@ -423,18 +425,14 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                roi_file = f'{filestem}_roi'
-                self.connect_action(roi_file,
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.roi),
                     self.create_menu_slot_roi(config_mod_pymodaq.get_set_roi_path().joinpath(file)))
 
         self.connect_action('new_remote', self.create_remote)
         self.connect_action('modify_remote', self.modify_remote)
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                remote_file = f'{filestem}_remote'
-                self.connect_action(remote_file,
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.remote),
                     self.create_menu_slot_remote(
                         config_mod_pymodaq.get_set_remote_path().joinpath(file)))
 
@@ -480,8 +478,8 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(self.preset_path.iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                self.load_preset_menu.addAction(self.get_action(filestem))
+                self.load_preset_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.preset)))
 
         self.overshoot_menu = menubar.addMenu('Overshoot Modes')
         self.overshoot_menu.addAction(self.get_action('new_overshoot'))
@@ -491,9 +489,8 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                overshoot_short = f'{filestem}_over'
-                load_overshoot_menu.addAction(self.get_action(overshoot_short))
+                load_overshoot_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.overshoot)))
 
         self.roi_menu = menubar.addMenu('ROI Modes')
         self.roi_menu.addAction(self.get_action('save_roi'))
@@ -503,9 +500,8 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                roi_file = f'{filestem}_roi'
-                load_roi_menu.addAction(self.get_action(roi_file))
+                load_roi_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.roi)))
 
         self.remote_menu = menubar.addMenu('Remote/Shortcuts Control')
         self.remote_menu.addAction('New remote config.', self.create_remote)
@@ -515,9 +511,8 @@ class DashBoard(CustomApp):
 
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                remote_file = f'{filestem}_remote'
-                load_remote_menu.addAction(self.get_action(remote_file))
+                load_remote_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.remote)))
 
         # extensions menu
         self.extensions_menu = menubar.addMenu('Extensions')
@@ -578,7 +573,9 @@ class DashBoard(CustomApp):
         try:
             if self.preset_file is not None:
                 self.roi_saver.set_new_roi(self.preset_file.stem)
-                self.add_action(f'{self.preset_file.stem}_roi', self.preset_file.stem, '')
+                self.add_action(self.get_action_from_file(self.preset_file,
+                                                          ManagerEnums.roi),
+                                self.preset_file.stem, '')
                 self.setup_menu(self.menubar)
 
         except Exception as e:
@@ -588,7 +585,9 @@ class DashBoard(CustomApp):
         try:
             if self.preset_file is not None:
                 self.remote_manager.set_new_remote(self.preset_file.stem)
-                self.add_action(f'{self.preset_file.stem}_remote', self.preset_file.stem, '')
+                self.add_action(self.get_action_from_file(self.preset_file,
+                                                          ManagerEnums.remote),
+                                self.preset_file.stem, '')
                 self.setup_menu(self.menubar)
 
         except Exception as e:
@@ -598,7 +597,9 @@ class DashBoard(CustomApp):
         try:
             if self.preset_file is not None:
                 self.overshoot_manager.set_new_overshoot(self.preset_file.stem)
-                self.add_action(f'{self.preset_file.stem}_over', self.preset_file.stem, '')
+                self.add_action(self.get_action_from_file(self.preset_file,
+                                                          ManagerEnums.overshoot),
+                                self.preset_file.stem, '')
                 self.setup_menu(self.menubar)
         except Exception as e:
             logger.exception(str(e))
@@ -606,11 +607,17 @@ class DashBoard(CustomApp):
     def create_preset(self):
         try:
             self.preset_manager.set_new_preset()
-            self.add_action(self.preset_file.stem, self.preset_file.stem, '')
+            self.add_action(self.get_action_from_file(self.preset_file,
+                                                      ManagerEnums.preset),
+                            self.preset_file.stem, '')
             self.setup_menu(self.menubar)
             self.new_preset_created.emit()
         except Exception as e:
             logger.exception(str(e))
+
+    @staticmethod
+    def get_action_from_file(file: Path, manager: ManagerEnums):
+        return f'{file.stem}_{manager.name}'
 
     def modify_remote(self):
         try:
