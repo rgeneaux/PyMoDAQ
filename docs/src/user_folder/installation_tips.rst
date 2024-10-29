@@ -12,7 +12,7 @@ Linux installation
 For Linux installation, only Ubuntu operating system are currently being tested. In particular, one needs to make sure
 that the QT environment can be used. Running the following command should be sufficient to start with:
 
-``sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils``
+``sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 x11-utils  libgl1 libegl1``
 
 It is also necessary to give some reading and writing permission access to some specific folders. In particular,
 PyMoDAQ creates two folders that are used to store configurations files, one assigned to the system in /etc/.pymodaq/
