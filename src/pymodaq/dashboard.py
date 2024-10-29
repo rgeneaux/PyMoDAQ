@@ -378,7 +378,7 @@ class DashBoard(CustomApp):
                             'one or more parameter')
         self.add_action('activate_overshoot', 'Activate overshoot', 'Error',
                         tip='if activated, apply an overshoot if one is configured',
-                        checkable=True)
+                        checkable=True, enabled=False)
         self.add_action('do_log', 'Log data', '', auto_toolbar=False)
         self.add_action('do_pid', 'PID module', auto_toolbar=False)
         self.add_action('console', 'IPython Console', auto_toolbar=False)
@@ -1275,15 +1275,22 @@ class DashBoard(CustomApp):
                 self.update_status('Overshoot configuration ({}) has been loaded'.format(file),
                                    log_type='log')
                 self.overshoot_manager.set_file_overshoot(filename, show=False)
+                self.set_action_enabled('activate_overshoot', True)
+                self.set_action_checked('activate_overshoot', False)
                 self.get_action('activate_overshoot').trigger()
 
         except Exception as e:
             logger.exception(str(e))
 
     def activate_overshoot(self, status: bool):
-        self.overshoot_manager.activate_overshoot(self.detector_modules,
-                                                  self.actuators_modules,
-                                                  status)
+        try:
+            self.overshoot_manager.activate_overshoot(self.detector_modules,
+                                                      self.actuators_modules,
+                                                      status)
+        except Exception as e:
+            logger.warning(f'Could not load the overshoot file:\n{str(e)}')
+            self.set_action_checked('activate_overshoot', False)
+            self.set_action_enabled('activate_overshoot', False)
 
     @property
     def move_modules(self):

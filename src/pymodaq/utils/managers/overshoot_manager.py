@@ -153,7 +153,8 @@ class OvershootManager:
 
         """
         children = ioxml.XML_file_to_parameter(filename)
-        self.overshoot_params = Parameter.create(title='Overshoot', name='Overshoot', type='group', children=children)
+        self.overshoot_params = Parameter.create(title='Overshoot', name='Overshoot', type='group',
+                                                 children=children)
         if show:
             self.show_overshoot()
 
@@ -203,29 +204,30 @@ class OvershootManager:
         det_titles = [det.title for det in det_modules]
         move_titles = [move.title for move in act_modules]
 
-        for det_param in self.overshoot_params.child(
-                'Detectors').children():
-            if det_param['trig_overshoot']:
-                det_index = det_titles.index(det_param.opts['title'])
-                det_module = det_modules[det_index]
-                det_module.settings.child(
-                    'main_settings', 'overshoot', 'stop_overshoot').setValue(status)
-                det_module.settings.child(
-                    'main_settings', 'overshoot', 'overshoot_value').setValue(
-                    det_param['overshoot_value'])
-                for move_param in det_param.child('params').children():
-                    if move_param['move_overshoot']:
-                        move_index = move_titles.index(move_param.opts['title'])
-                        move_module = act_modules[move_index]
-                        if status:
-                            det_module.overshoot_signal.connect(
-                                self.create_overshoot_fun(
-                                    move_module, move_param['position']))
-                        else:
-                            try:
-                                det_module.overshoot_signal.disconnect()
-                            except Exception as e:
-                                pass
+        if self.overshoot_params is not None:
+            for det_param in self.overshoot_params.child(
+                    'Detectors').children():
+                if det_param['trig_overshoot']:
+                    det_index = det_titles.index(det_param.opts['title'])
+                    det_module = det_modules[det_index]
+                    det_module.settings.child(
+                        'main_settings', 'overshoot', 'stop_overshoot').setValue(status)
+                    det_module.settings.child(
+                        'main_settings', 'overshoot', 'overshoot_value').setValue(
+                        det_param['overshoot_value'])
+                    for move_param in det_param.child('params').children():
+                        if move_param['move_overshoot']:
+                            move_index = move_titles.index(move_param.opts['title'])
+                            move_module = act_modules[move_index]
+                            if status:
+                                det_module.overshoot_signal.connect(
+                                    self.create_overshoot_fun(
+                                        move_module, move_param['position']))
+                            else:
+                                try:
+                                    det_module.overshoot_signal.disconnect()
+                                except Exception as e:
+                                    pass
 
     @staticmethod
     def create_overshoot_fun(move_module, position):
