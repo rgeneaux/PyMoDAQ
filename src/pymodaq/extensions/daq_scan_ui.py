@@ -83,13 +83,10 @@ class DAQScanUI(CustomApp, ViewerDispatcher):
         self.connect_action('navigator', lambda: self.command_sig.emit(ThreadCommand('navigator')))
         self.connect_action('batch', lambda: self.command_sig.emit(ThreadCommand('batch')))
 
-    def setup_menu(self):
-        self.menubar = QtWidgets.QMenuBar()
-        self.menubar.setMaximumHeight(30)
-        self.mainwindow.setMenuBar(self.menubar)
-        self.file_menu = self.menubar.addMenu('File')
-        self._extensions_menu = self.menubar.addMenu('Extensions')
-        self.action_menu = self.menubar.addMenu('Actions')
+    def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
+        self.file_menu = menubar.addMenu('File')
+        self._extensions_menu = menubar.addMenu('Extensions')
+        self.action_menu = menubar.addMenu('Actions')
 
     def setup_docks(self):
         self.dock_command = Dock('Scan Command')

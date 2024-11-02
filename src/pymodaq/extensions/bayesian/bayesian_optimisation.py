@@ -177,7 +177,7 @@ class BayesianOptimisation(CustomExt):
             params = getattr(model_class, 'params')
             self.settings.child('models', 'model_params').addChildren(params)
 
-    def setup_menu(self):
+    def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
         '''
         to be subclassed
         create menu for actions contained into the self.actions_manager, for instance:
