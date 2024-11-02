@@ -38,9 +38,10 @@ class DAQScanUI(CustomApp, ViewerDispatcher):
     def __init__(self, parent):
         CustomApp.__init__(self, parent)
         self.setup_docks()
-        ViewerDispatcher.__init__(self, self.dockarea, title='Scanner', next_to_dock=self.dock_command)
+        ViewerDispatcher.__init__(self, self.dockarea, title='Scanner',
+                                  next_to_dock=self.dock_command)
 
-        self.setup_menu()
+        self.setup_menu(self.menu)
         self.setup_actions()
         self.connect_things()
 
