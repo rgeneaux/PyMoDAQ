@@ -41,7 +41,7 @@ class DAQScanUI(CustomApp, ViewerDispatcher):
         ViewerDispatcher.__init__(self, self.dockarea, title='Scanner',
                                   next_to_dock=self.dock_command)
 
-        self.setup_menu(self.menu)
+        self.setup_menu(self._menubar)
         self.setup_actions()
         self.connect_things()
 
