@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 from importlib import import_module
 from packaging import version as version_mod
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, TYPE_CHECKING
 
 
 from qtpy import QtGui, QtWidgets, QtCore
@@ -23,6 +23,7 @@ from pymodaq_utils.logger import set_logger, get_module_name
 from pymodaq_utils import utils
 from pymodaq_utils.utils import get_version, find_dict_in_list_from_key_val
 from pymodaq_utils import config as configmod
+from pymodaq_utils.enums import BaseEnum
 
 from pymodaq_gui.parameter import ParameterTree, Parameter
 from pymodaq_gui.utils import DockArea, Dock, select_file
@@ -30,6 +31,7 @@ import pymodaq_gui.utils.layout as layout_mod
 from pymodaq_gui.messenger import messagebox
 from pymodaq_gui.parameter import utils as putils
 from pymodaq_gui.managers.roi_manager import ROISaver
+from pymodaq_gui.utils.custom_app import CustomApp
 
 from pymodaq.utils.managers.modules_manager import ModulesManager
 from pymodaq.utils.managers.preset_manager import PresetManager
@@ -39,17 +41,19 @@ from pymodaq.utils.exceptions import DetectorError, ActuatorError, MasterSlaveEr
 from pymodaq.utils.daq_utils import get_instrument_plugins
 from pymodaq.utils.leco.utils import start_coordinator
 from pymodaq.utils import config as config_mod_pymodaq
+
 from pymodaq.control_modules.daq_move import DAQ_Move
 from pymodaq.control_modules.daq_viewer import DAQ_Viewer
+from pymodaq.utils.gui_utils import get_splash_sc
+
 from pymodaq import extensions as extmod
 
+logger = set_logger(get_module_name(__file__))
+config = configmod.Config()
 
 get_instrument_plugins()
+extensions = extmod.get_extensions()
 
-logger = set_logger(get_module_name(__file__))
-
-
-config = configmod.Config()
 
 local_path = configmod.get_set_local_dir()
 now = datetime.datetime.now()
@@ -60,15 +64,44 @@ overshoot_path = config_mod_pymodaq.get_set_overshoot_path()
 roi_path = config_mod_pymodaq.get_set_roi_path()
 remote_path = config_mod_pymodaq.get_set_remote_path()
 
-extensions = extmod.get_extensions()
+
+class ManagerEnums(BaseEnum):
+    preset = 0
+    remote = 1
+    overshoot = 2
+    roi = 3
 
 
-class DashBoard(QObject):
+class DashBoard(CustomApp):
     """
     Main class initializing a DashBoard interface to display det and move modules and logger """
     status_signal = Signal(str)
     preset_loaded_signal = Signal(bool)
     new_preset_created = Signal()
+
+    settings_name = 'dashboard_settings'
+    _splash_sc = None
+
+    params = [
+            {'title': 'Log level', 'name': 'log_level', 'type': 'list',
+             'value': config('general', 'debug_level'),
+             'limits': config('general', 'debug_levels')},
+
+            {'title': 'Loaded presets', 'name': 'loaded_files', 'type': 'group', 'children': [
+                {'title': 'Preset file', 'name': 'preset_file', 'type': 'str', 'value': '',
+                 'readonly': True},
+                {'title': 'Overshoot file', 'name': 'overshoot_file', 'type': 'str', 'value': '',
+                 'readonly': True},
+                {'title': 'Layout file', 'name': 'layout_file', 'type': 'str', 'value': '',
+                 'readonly': True},
+                {'title': 'ROI file', 'name': 'roi_file', 'type': 'str', 'value': '',
+                 'readonly': True},
+                {'title': 'Remote file', 'name': 'remote_file', 'type': 'str', 'value': '',
+                 'readonly': True},
+            ]},
+            {'title': 'Actuators Init.', 'name': 'actuators', 'type': 'group', 'children': []},
+            {'title': 'Detectors Init.', 'name': 'detectors', 'type': 'group', 'children': []},
+        ]
 
     def __init__(self, dockarea):
         """
@@ -78,7 +111,8 @@ class DashBoard(QObject):
         parent: (dockarea) instance of the modified pyqtgraph Dockarea (see daq_utils)
         """
         
-        super().__init__()
+        super().__init__(dockarea)
+
         logger.info('Initializing Dashboard')
         self.extra_params = []
         self.preset_path = preset_path
@@ -92,14 +126,10 @@ class DashBoard(QObject):
         self.extensions = dict([])
         self.extension_windows = []
 
-        self.dockarea = dockarea
         self.dockarea.dock_signal.connect(self.save_layout_state_auto)
-        self.mainwindow = dockarea.parent()
-        self.title = ''
-        splash_path = Path(__file__).parent.joinpath('splash.png')
 
-        splash = QtGui.QPixmap(str(splash_path))
-        self.splash_sc = QtWidgets.QSplashScreen(splash, Qt.WindowStaysOnTopHint)
+        self.title = ''
+
         self.overshoot_manager = None
         self.preset_manager = None
         self.roi_saver: ROISaver = None
@@ -116,12 +146,22 @@ class DashBoard(QObject):
         self.preset_file = None
         self.actuators_modules = []
         self.detector_modules = []
-        self.setupUI()
+
+        self.setup_ui()
+
+        self.mainwindow.setVisible(True)
 
         logger.info('Dashboard Initialized')
 
         if config('general', 'check_version'):
             self.check_version(show=False)
+
+    @classmethod
+    @property
+    def splash_sc(cls) -> QtWidgets.QSplashScreen:
+        if cls._splash_sc is None:
+            cls._splash_sc = get_splash_sc()
+        return cls._splash_sc
 
     def set_preset_path(self, path):
         self.preset_path = path
@@ -268,7 +308,153 @@ class DashBoard(QObject):
         self.extension_windows[-1].show()
         return self.extensions[ext['class_name']]
 
-    def create_menu(self, menubar):
+    def setup_actions(self):
+        self.add_action('log', 'Log File', '', "Show Log File in default editor",
+                        auto_toolbar=False)
+        self.add_action('quit', 'Quit', 'close2', "Quit program")
+        self.toolbar.addSeparator()
+        self.add_action('config', 'Configuration file', 'tree', "Show Log File in default editor")
+        self.add_action('restart', 'Restart', '', "Restart the Dashboard",
+                        auto_toolbar=False)
+        self.add_action('leco', 'Run Leco Coordinator', '', 'Run a Coordinator on this localhost',
+                        auto_toolbar=False)
+        self.add_action('load_layout', 'Load Layout', '',
+                        'Load the Saved Docks layout corresponding to the current preset',
+                        auto_toolbar=False)
+        self.add_action('save_layout', 'Save Layout', '',
+                        'Save the Saved Docks layout corresponding to the current preset',
+                        auto_toolbar=False)
+        self.add_action('log_window', 'Show/hide log window', '', checkable=True,
+                        auto_toolbar=False)
+        self.add_action('new_preset', 'New Preset', '',
+                        'Create a new experimental setup configuration file: a "preset"',
+                        auto_toolbar=False)
+        self.add_action('modify_preset', 'Modify Preset', '',
+                        'Modify an existing experimental setup configuration file: a "preset"',
+                        auto_toolbar=False)
+
+        presets = []
+        for ind_file, file in enumerate(self.preset_path.iterdir()):
+            if file.suffix == '.xml':
+                filestem = file.stem
+                self.add_action(self.get_action_from_file(file, ManagerEnums.preset),
+                                filestem, '', f'Load the {filestem}.xml preset',
+                                auto_toolbar=False)
+                presets.append(filestem)
+
+        self.add_widget('preset_list', QtWidgets.QComboBox, toolbar=self.toolbar,
+                        signal_str='currentTextChanged', slot=self.update_preset_action)
+        self.add_action('load_preset', 'LOAD', 'Open',
+                        tip='Load the selected Preset: ')
+        self.get_action('preset_list').addItems(presets)
+        self.add_action('new_overshoot', 'New Overshoot', '',
+                        'Create a new experimental setup overshoot configuration file',
+                        auto_toolbar=False)
+        self.add_action('modify_overshoot', 'Modify Overshoot', '',
+                        'Modify an existing experimental setup overshoot configuration file',
+                        auto_toolbar=False)
+
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
+            if file.suffix == '.xml':
+                self.add_action(self.get_action_from_file(file, ManagerEnums.overshoot), file.stem,
+                                auto_toolbar=False)
+
+        self.add_action('save_roi', 'Save ROIs as a file', '', auto_toolbar=False)
+        self.add_action('modify_roi', 'Modify ROI file', '', auto_toolbar=False)
+
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
+            if file.suffix == '.xml':
+                self.add_action(self.get_action_from_file(file, ManagerEnums.roi), file.stem,
+                                '', auto_toolbar=False)
+
+        self.add_action('new_remote', 'Create New Remote', '', auto_toolbar=False)
+        self.add_action('modify_remote', 'Modify Remote file', '', auto_toolbar=False)
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
+            if file.suffix == '.xml':
+                self.add_action(self.get_action_from_file(file, ManagerEnums.remote),
+                                file.stem, '', auto_toolbar=False)
+        self.add_action('activate_overshoot', 'Activate overshoot', 'Error',
+                        tip='if activated, apply an overshoot if one is configured',
+                        checkable=True, enabled=False)
+        self.toolbar.addSeparator()
+        self.add_action('do_scan', 'Do Scans', 'surfacePlot',
+                        tip='Open the DAQ Scan extension to acquire data as a function of '
+                            'one or more parameter')
+        self.toolbar.addSeparator()
+        self.add_action('do_log', 'Log data', '', auto_toolbar=False)
+        self.add_action('do_pid', 'PID module', auto_toolbar=False)
+        self.add_action('console', 'IPython Console', auto_toolbar=False)
+        self.add_action('bayesian', 'Bayesian Optimisation', auto_toolbar=False)
+
+        self.add_action('about', 'About', 'information2')
+        self.add_action('help', 'Help', 'help1')
+        self.get_action('help').setShortcut(QtGui.QKeySequence('F1'))
+        self.add_action('check_version', 'Check Version', '', auto_toolbar=False)
+        self.toolbar.addSeparator()
+        self.add_action('plugin_manager', 'Plugin Manager', '')
+
+    def update_preset_action(self, preset_name: str):
+        self.get_action('load_preset').setToolTip(f'Load the {preset_name}.xml preset file!')
+
+    def connect_things(self):
+        self.status_signal[str].connect(self.add_status)
+        self.connect_action('log', self.show_log)
+        self.connect_action('config', self.show_config)
+        self.connect_action('quit', self.quit_fun)
+        self.connect_action('restart', self.restart_fun)
+        self.connect_action('leco', start_coordinator)
+        self.connect_action('load_layout', self.load_layout_state)
+        self.connect_action('save_layout', self.save_layout_state)
+        self.connect_action('log_window', self.logger_dock.setVisible)
+        self.connect_action('new_preset', self.create_preset)
+        self.connect_action('modify_preset', self.modify_preset)
+
+        for ind_file, file in enumerate(self.preset_path.iterdir()):
+            if file.suffix == '.xml':
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.preset),
+                                    self.create_menu_slot(self.preset_path.joinpath(file)))
+        self.connect_action('load_preset',
+                            lambda: self.set_preset_mode(
+                                self.preset_path.joinpath(
+                                    f"{self.get_action('preset_list').currentText()}.xml")))
+        self.connect_action('new_overshoot', self.create_overshoot)
+        self.connect_action('modify_overshoot', self.modify_overshoot)
+        self.connect_action('activate_overshoot', self.activate_overshoot)
+
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
+            if file.suffix == '.xml':
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.overshoot),
+                    self.create_menu_slot_over(
+                        config_mod_pymodaq.get_set_overshoot_path().joinpath(file)))
+
+        self.connect_action('save_roi', self.create_roi_file)
+        self.connect_action('modify_roi', self.modify_roi)
+
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
+            if file.suffix == '.xml':
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.roi),
+                    self.create_menu_slot_roi(config_mod_pymodaq.get_set_roi_path().joinpath(file)))
+
+        self.connect_action('new_remote', self.create_remote)
+        self.connect_action('modify_remote', self.modify_remote)
+        for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
+            if file.suffix == '.xml':
+                self.connect_action(self.get_action_from_file(file, ManagerEnums.remote),
+                    self.create_menu_slot_remote(
+                        config_mod_pymodaq.get_set_remote_path().joinpath(file)))
+
+        self.connect_action('do_scan', lambda: self.load_scan_module())
+        self.connect_action('do_log', lambda: self.load_log_module())
+        self.connect_action('do_pid', lambda: self.load_pid_module())
+        self.connect_action('console', lambda: self.load_console())
+        self.connect_action('bayesian', lambda: self.load_bayesian())
+
+        self.connect_action('about', self.show_about)
+        self.connect_action('help', self.show_help)
+        self.connect_action('check_version', lambda: self.check_version(True))
+        self.connect_action('plugin_manager', self.start_plugin_manager)
+
+    def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
         """
             Create the menubar object looking like :
         """
@@ -276,128 +462,95 @@ class DashBoard(QObject):
 
         # %% create Settings menu
         self.file_menu = menubar.addMenu('File')
-        self.file_menu.addAction('Show log file', self.show_log)
-        self.file_menu.addAction('Show configuration file', self.show_config)
+        self.file_menu.addAction(self.get_action('log'))
+        self.file_menu.addAction(self.get_action('config'))
         self.file_menu.addSeparator()
-        quit_action = self.file_menu.addAction('Quit')
-        restart_action = self.file_menu.addAction('Restart')
-        quit_action.triggered.connect(self.quit_fun)
-        restart_action.triggered.connect(self.restart_fun)
+        self.file_menu.addAction(self.get_action('quit'))
+        self.file_menu.addAction(self.get_action('restart'))
 
         self.settings_menu = menubar.addMenu('Settings')
-        action_leco = self.settings_menu.addAction('Run Leco Coordinator')
-        action_leco.triggered.connect(start_coordinator)
+        self.settings_menu.addAction(self.get_action('leco'))
         docked_menu = self.settings_menu.addMenu('Docked windows')
-        action_load = docked_menu.addAction('Load Layout')
-        action_save = docked_menu.addAction('Save Layout')
-
-        action_load.triggered.connect(self.load_layout_state)
-        action_save.triggered.connect(self.save_layout_state)
+        docked_menu.addAction(self.get_action('load_layout'))
+        docked_menu.addAction(self.get_action('save_layout'))
 
         docked_menu.addSeparator()
-        action_show_log = docked_menu.addAction('Show/hide log window')
-        action_show_log.setCheckable(True)
-        action_show_log.toggled.connect(self.logger_dock.setVisible)
+        docked_menu.addAction(self.get_action('log_window'))
 
         self.preset_menu = menubar.addMenu('Preset Modes')
-        action_new_preset = self.preset_menu.addAction('New Preset')
-        # action.triggered.connect(lambda: self.show_file_attributes(type_info='managers'))
-        action_new_preset.triggered.connect(self.create_preset)
-        action_modify_preset = self.preset_menu.addAction('Modify Preset')
-        action_modify_preset.triggered.connect(self.modify_preset)
+        self.preset_menu.addAction(self.get_action('new_preset'))
+        self.preset_menu.addAction(self.get_action('modify_preset'))
         self.preset_menu.addSeparator()
-        self.load_preset = self.preset_menu.addMenu('Load presets')
+        self.load_preset_menu = self.preset_menu.addMenu('Load presets')
 
-        slots = dict([])
         for ind_file, file in enumerate(self.preset_path.iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                slots[filestem] = self.load_preset.addAction(filestem)
-                slots[filestem].triggered.connect(
-                    self.create_menu_slot(self.preset_path.joinpath(file)))
+                self.load_preset_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.preset)))
 
         self.overshoot_menu = menubar.addMenu('Overshoot Modes')
-        action_new_overshoot = self.overshoot_menu.addAction('New Overshoot')
-        # action.triggered.connect(lambda: self.show_file_attributes(type_info='managers'))
-        action_new_overshoot.triggered.connect(self.create_overshoot)
-        action_modify_overshoot = self.overshoot_menu.addAction('Modify Overshoot')
-        action_modify_overshoot.triggered.connect(self.modify_overshoot)
+        self.overshoot_menu.addAction(self.get_action('new_overshoot'))
+        self.overshoot_menu.addAction(self.get_action('modify_overshoot'))
+        self.overshoot_menu.addAction(self.get_action('activate_overshoot'))
         self.overshoot_menu.addSeparator()
-        load_overshoot = self.overshoot_menu.addMenu('Load Overshoots')
+        load_overshoot_menu = self.overshoot_menu.addMenu('Load Overshoots')
 
-        slots_over = dict([])
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_overshoot_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                slots_over[filestem] = load_overshoot.addAction(filestem)
-                slots_over[filestem].triggered.connect(
-                    self.create_menu_slot_over(
-                        config_mod_pymodaq.get_set_overshoot_path().joinpath(file)))
+                load_overshoot_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.overshoot)))
 
         self.roi_menu = menubar.addMenu('ROI Modes')
-        action_new_roi = self.roi_menu.addAction('Save Current ROIs as a file')
-        action_new_roi.triggered.connect(self.create_roi_file)
-        action_modify_roi = self.roi_menu.addAction('Modify roi config')
-        action_modify_roi.triggered.connect(self.modify_roi)
+        self.roi_menu.addAction(self.get_action('save_roi'))
+        self.roi_menu.addAction(self.get_action('modify_roi'))
         self.roi_menu.addSeparator()
-        load_roi = self.roi_menu.addMenu('Load roi configs')
+        load_roi_menu = self.roi_menu.addMenu('Load roi configs')
 
-        slots = dict([])
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_roi_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                slots[filestem] = load_roi.addAction(filestem)
-                slots[filestem].triggered.connect(
-                    self.create_menu_slot_roi(config_mod_pymodaq.get_set_roi_path().joinpath(file)))
+                load_roi_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.roi)))
 
         self.remote_menu = menubar.addMenu('Remote/Shortcuts Control')
         self.remote_menu.addAction('New remote config.', self.create_remote)
         self.remote_menu.addAction('Modify remote config.', self.modify_remote)
         self.remote_menu.addSeparator()
-        load_remote = self.remote_menu.addMenu('Load remote config.')
+        load_remote_menu = self.remote_menu.addMenu('Load remote config.')
 
-        slots = dict([])
         for ind_file, file in enumerate(config_mod_pymodaq.get_set_remote_path().iterdir()):
             if file.suffix == '.xml':
-                filestem = file.stem
-                slots[filestem] = load_remote.addAction(filestem)
-                slots[filestem].triggered.connect(
-                    self.create_menu_slot_remote(
-                        config_mod_pymodaq.get_set_remote_path().joinpath(file)))
+                load_remote_menu.addAction(
+                    self.get_action(self.get_action_from_file(file, ManagerEnums.remote)))
 
-        # actions menu
-        self.actions_menu = menubar.addMenu('Extensions')
-        action_scan = self.actions_menu.addAction('Do Scans')
-        action_scan.triggered.connect(lambda: self.load_scan_module())
-        action_log = self.actions_menu.addAction('Log data')
-        action_log.triggered.connect(lambda: self.load_log_module())
-        action_pid = self.actions_menu.addAction('PID module')
-        action_pid.triggered.connect(lambda: self.load_pid_module())
-        action_console = self.actions_menu.addAction('IPython Console')
-        action_console.triggered.connect(lambda: self.load_console())
-        action_bayesian = self.actions_menu.addAction('Bayesian Optimisation')
-        action_bayesian.triggered.connect(lambda: self.load_bayesian())
+        # extensions menu
+        self.extensions_menu = menubar.addMenu('Extensions')
+        self.extensions_menu.addAction(self.get_action('do_scan'))
+        self.extensions_menu.addAction(self.get_action('do_log'))
+        self.extensions_menu.addAction(self.get_action('do_pid'))
+        self.extensions_menu.addAction(self.get_action('console'))
+        self.extensions_menu.addAction(self.get_action('bayesian'))
 
+        # extensions from plugins
         extensions_actions = []
         for ext in extensions:
-            extensions_actions.append(self.actions_menu.addAction(ext['name']))
+            extensions_actions.append(self.extensions_menu.addAction(ext['name']))
             extensions_actions[-1].triggered.connect(self.create_menu_slot_ext(ext))
-
 
         # help menu
         help_menu = menubar.addMenu('?')
-        action_about = help_menu.addAction('About')
-        action_about.triggered.connect(self.show_about)
-        action_help = help_menu.addAction('Help')
-        action_help.triggered.connect(self.show_help)
-        action_help.setShortcut(QtGui.QKeySequence('F1'))
-
+        help_menu.addAction(self.get_action('about'))
+        help_menu.addAction(self.get_action('help'))
         help_menu.addSeparator()
-        action_update = help_menu.addAction('Check Version')
-        action_update.triggered.connect(lambda: self.check_version(True))
+        help_menu.addAction(self.get_action('check_version'))
+        help_menu.addAction(self.get_action('plugin_manager'))
 
-        action_plugin_manager = help_menu.addAction('Plugin Manager')
-        action_plugin_manager.triggered.connect(self.start_plugin_manager)
+        self.overshoot_menu.setEnabled(False)
+        self.roi_menu.setEnabled(False)
+        self.remote_menu.setEnabled(False)
+        self.extensions_menu.setEnabled(False)
+        self.file_menu.setEnabled(True)
+        self.settings_menu.setEnabled(True)
+        self.preset_menu.setEnabled(True)
 
     def start_plugin_manager(self):
         self.win_plug_manager = QtWidgets.QMainWindow()
@@ -428,7 +581,10 @@ class DashBoard(QObject):
         try:
             if self.preset_file is not None:
                 self.roi_saver.set_new_roi(self.preset_file.stem)
-                self.create_menu(self.menubar)
+                self.add_action(self.get_action_from_file(self.preset_file,
+                                                          ManagerEnums.roi),
+                                self.preset_file.stem, '')
+                self.setup_menu(self.menubar)
 
         except Exception as e:
             logger.exception(str(e))
@@ -437,7 +593,10 @@ class DashBoard(QObject):
         try:
             if self.preset_file is not None:
                 self.remote_manager.set_new_remote(self.preset_file.stem)
-                self.create_menu(self.menubar)
+                self.add_action(self.get_action_from_file(self.preset_file,
+                                                          ManagerEnums.remote),
+                                self.preset_file.stem, '')
+                self.setup_menu(self.menubar)
 
         except Exception as e:
             logger.exception(str(e))
@@ -446,17 +605,27 @@ class DashBoard(QObject):
         try:
             if self.preset_file is not None:
                 self.overshoot_manager.set_new_overshoot(self.preset_file.stem)
-                self.create_menu(self.menubar)
+                self.add_action(self.get_action_from_file(self.preset_file,
+                                                          ManagerEnums.overshoot),
+                                self.preset_file.stem, '')
+                self.setup_menu(self.menubar)
         except Exception as e:
             logger.exception(str(e))
 
     def create_preset(self):
         try:
             self.preset_manager.set_new_preset()
-            self.create_menu(self.menubar)
+            self.add_action(self.get_action_from_file(self.preset_file,
+                                                      ManagerEnums.preset),
+                            self.preset_file.stem, '')
+            self.setup_menu(self.menubar)
             self.new_preset_created.emit()
         except Exception as e:
             logger.exception(str(e))
+
+    @staticmethod
+    def get_action_from_file(file: Path, manager: ManagerEnums):
+        return f'{file.stem}_{manager.name}'
 
     def modify_remote(self):
         try:
@@ -644,7 +813,7 @@ class DashBoard(QObject):
                 mssg = f'Could not set this setting: {str(e)}\n' \
                        f'The Preset is no more compatible with the plugin {plug_type}'
                 logger.warning(mssg)
-                self.splash_sc.showMessage(mssg, color=Qt.white)
+                self.splash_sc.showMessage(mssg)
         QtWidgets.QApplication.processEvents()
 
         mov_mod_tmp.bounds_signal[bool].connect(self.stop_moves)
@@ -713,7 +882,7 @@ class DashBoard(QObject):
                 mssg = f'Could not set this setting: {str(e)}\n' \
                        f'The Preset is no more compatible with the plugin {plug_subtype}'
                 logger.warning(mssg)
-                self.splash_sc.showMessage(mssg, color=Qt.white)
+                self.splash_sc.showMessage(mssg)
 
         detector_modules.append(det_mod_tmp)
         return det_mod_tmp
@@ -830,8 +999,7 @@ class DashBoard(QObject):
                     plug_init = plugin['value'].child('init').value()
                     plug_settings = plugin['value'].child('params')
                     self.splash_sc.showMessage(
-                        'Loading {:s} module: {:s}'.format(plugin['type'], plug_name),
-                        color=Qt.white)
+                        'Loading {:s} module: {:s}'.format(plugin['type'], plug_name))
 
                     if plugin['type'] == 'move':
                         plug_type = plug_settings.child('main_settings', 'move_type').value()
@@ -1110,33 +1278,22 @@ class DashBoard(QObject):
                 self.update_status('Overshoot configuration ({}) has been loaded'.format(file),
                                    log_type='log')
                 self.overshoot_manager.set_file_overshoot(filename, show=False)
-
-                det_titles = [det.title for det in self.detector_modules]
-                move_titles = [move.title for move in self.actuators_modules]
-
-                for det_param in self.overshoot_manager.overshoot_params.child(
-                        'Detectors').children():
-                    if det_param.child(('trig_overshoot')).value():
-                        det_index = det_titles.index(det_param.opts['title'])
-                        det_module = self.detector_modules[det_index]
-                        det_module.settings.child(
-                            'main_settings', 'overshoot', 'stop_overshoot').setValue(True)
-                        det_module.settings.child(
-                            'main_settings', 'overshoot', 'overshoot_value').setValue(
-                            det_param['overshoot_value'])
-                        for move_param in det_param.child(('params')).children():
-                            if move_param['move_overshoot']:
-                                move_index = move_titles.index(move_param.opts['title'])
-                                move_module = self.actuators_modules[move_index]
-                                det_module.overshoot_signal.connect(
-                                    self.create_overshoot_fun(
-                                        move_module, move_param['position']))
+                self.set_action_enabled('activate_overshoot', True)
+                self.set_action_checked('activate_overshoot', False)
+                self.get_action('activate_overshoot').trigger()
 
         except Exception as e:
             logger.exception(str(e))
 
-    def create_overshoot_fun(self, move_module, position):
-        return lambda: move_module.move_abs(position)
+    def activate_overshoot(self, status: bool):
+        try:
+            self.overshoot_manager.activate_overshoot(self.detector_modules,
+                                                      self.actuators_modules,
+                                                      status)
+        except Exception as e:
+            logger.warning(f'Could not load the overshoot file:\n{str(e)}')
+            self.set_action_checked('activate_overshoot', False)
+            self.set_action_enabled('activate_overshoot', False)
 
     @property
     def move_modules(self):
@@ -1173,6 +1330,9 @@ class DashBoard(QObject):
         try:
             if not isinstance(filename, Path):
                 filename = Path(filename)
+
+            self.get_action('preset_list').setCurrentText(filename.stem)
+
             self.mainwindow.setVisible(False)
             for area in self.dockarea.tempAreas:
                 area.window().setVisible(False)
@@ -1180,7 +1340,7 @@ class DashBoard(QObject):
             self.splash_sc.show()
             QtWidgets.QApplication.processEvents()
             self.splash_sc.raise_()
-            self.splash_sc.showMessage('Loading Modules, please wait', color=Qt.white)
+            self.splash_sc.showMessage('Loading Modules, please wait')
             QtWidgets.QApplication.processEvents()
             self.clear_move_det_controllers()
             QtWidgets.QApplication.processEvents()
@@ -1248,11 +1408,13 @@ class DashBoard(QObject):
                 if self.pid_window is not None:
                     self.pid_window.show()
 
-                self.load_preset.setEnabled(False)
+                self.load_preset_menu.setEnabled(False)
+                self.set_action_enabled('load_preset', False)
+                self.set_action_enabled('preset_list', False)
                 self.overshoot_menu.setEnabled(True)
                 self.roi_menu.setEnabled(True)
                 self.remote_menu.setEnabled(True)
-                self.actions_menu.setEnabled(True)
+                self.extensions_menu.setEnabled(True)
                 self.file_menu.setEnabled(True)
                 self.settings_menu.setEnabled(True)
                 self.update_init_tree()
@@ -1308,40 +1470,18 @@ class DashBoard(QObject):
         config_tree = TreeFromToml()
         config_tree.show_dialog()
 
-    def setupUI(self):
+    def setup_docks(self):
 
         # %% create logger dock
         self.logger_dock = Dock("Logger")
         self.logger_list = QtWidgets.QListWidget()
         self.logger_list.setMinimumWidth(300)
-        self.init_tree = ParameterTree()
-        self.init_tree.setMinimumWidth(300)
+
         splitter = QtWidgets.QSplitter(Qt.Vertical)
-        splitter.addWidget(self.init_tree)
+        splitter.addWidget(self.settings_tree)
         splitter.addWidget(self.logger_list)
         self.logger_dock.addWidget(splitter)
 
-        self.settings = Parameter.create(name='init_settings', type='group', children=[
-            {'title': 'Log level', 'name': 'log_level', 'type': 'list',
-             'value': config('general', 'debug_level'),
-             'limits': config('general', 'debug_levels')},
-
-            {'title': 'Loaded presets', 'name': 'loaded_files', 'type': 'group', 'children': [
-                {'title': 'Preset file', 'name': 'preset_file', 'type': 'str', 'value': '',
-                 'readonly': True},
-                {'title': 'Overshoot file', 'name': 'overshoot_file', 'type': 'str', 'value': '',
-                 'readonly': True},
-                {'title': 'Layout file', 'name': 'layout_file', 'type': 'str', 'value': '',
-                 'readonly': True},
-                {'title': 'ROI file', 'name': 'roi_file', 'type': 'str', 'value': '',
-                 'readonly': True},
-                {'title': 'Remote file', 'name': 'remote_file', 'type': 'str', 'value': '',
-                 'readonly': True},
-            ]},
-            {'title': 'Actuators Init.', 'name': 'actuators', 'type': 'group', 'children': []},
-            {'title': 'Detectors Init.', 'name': 'detectors', 'type': 'group', 'children': []},
-        ])
-        self.init_tree.setParameters(self.settings, showTop=False)
         self.remote_dock = Dock('Remote controls')
         self.dockarea.addDock(self.remote_dock, 'top')
         self.dockarea.addDock(self.logger_dock, 'above', self.remote_dock)
@@ -1350,21 +1490,9 @@ class DashBoard(QObject):
         self.remote_dock.setVisible(False)
         self.preset_manager = PresetManager(path=self.preset_path, extra_params=self.extra_params)
 
-        # creating the menubar
-        self.menubar = self.mainwindow.menuBar()
-        self.create_menu(self.menubar)
-        self.overshoot_menu.setEnabled(False)
-        self.roi_menu.setEnabled(False)
-        self.remote_menu.setEnabled(False)
-        self.actions_menu.setEnabled(False)
-        #        connecting
-        self.status_signal[str].connect(self.add_status)
-
-        self.file_menu.setEnabled(True)
-        # self.actions_menu.setEnabled(True)
-        self.settings_menu.setEnabled(True)
-        self.preset_menu.setEnabled(True)
-        self.mainwindow.setVisible(True)
+    @property
+    def menubar(self):
+        return self._menubar
 
     def parameter_tree_changed(self, param, changes):
         """
@@ -1398,8 +1526,7 @@ class DashBoard(QObject):
         self.splash_sc.showMessage(
             f"PyMoDAQ version {get_version('pymodaq')}\n"
             f"Modular Acquisition with Python\n"
-            f"Written by Sébastien Weber",
-            QtCore.Qt.AlignRight, QtCore.Qt.white)
+            f"Written by Sébastien Weber")
 
     def check_version(self, show=True):
         try:
@@ -1497,6 +1624,7 @@ class DashBoard(QObject):
 
 def main():
     from pymodaq_gui.utils.utils import mkQApp
+
     app = mkQApp('Dashboard')
 
     win = QtWidgets.QMainWindow()
@@ -1505,10 +1633,11 @@ def main():
     win.resize(1000, 500)
     win.setWindowTitle('PyMoDAQ Dashboard')
 
-    # win.setVisible(False)
     prog = DashBoard(area)
+
+    win.show()
+
     app.exec()
-    return prog, win
 
 
 if __name__ == '__main__':
