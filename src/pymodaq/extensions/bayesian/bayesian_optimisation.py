@@ -10,6 +10,8 @@ from pymodaq.utils.data import DataToExport, DataToActuators, DataCalculated, Da
 from pymodaq.utils.managers.modules_manager import ModulesManager
 from pymodaq_utils import utils
 from pymodaq_utils import config as configmod
+from pymodaq_utils.enums import BaseEnum
+
 from pymodaq_gui.config import ConfigSaverLoader
 from pymodaq_utils.logger import set_logger, get_module_name
 
@@ -34,6 +36,14 @@ EXTENSION_NAME = 'BayesianOptimisation'
 CLASS_NAME = 'BayesianOptimisation'
 
 logger = set_logger(get_module_name(__file__))
+
+
+class DataNames(BaseEnum):
+    Fitness = 0
+    Individual = 1
+    ProbedData = 2
+    Actuators = 3
+    Kappa = 4
 
 
 class BayesianOptimisation(CustomExt):
@@ -451,20 +461,20 @@ class BayesianOptimisation(CustomExt):
     def process_output(self, dte: DataToExport):
 
         self.enl_index += 1
-        dwa_kappa = dte.remove(dte.get_data_from_name('kappa'))
+        dwa_kappa = dte.remove(dte.get_data_from_name(DataNames.Kappa.name))
         self.settings.child('main_settings', 'utility', 'kappa_actual').setValue(
             float(dwa_kappa[0][0])
         )
 
-        dwa_data = dte.remove(dte.get_data_from_name('ProbedData'))
-        dwa_actuators: DataActuator = dte.remove(dte.get_data_from_name('Actuators'))
+        dwa_data = dte.remove(dte.get_data_from_name(DataNames.ProbedData.name))
+        dwa_actuators: DataActuator = dte.remove(dte.get_data_from_name(DataNames.Actuators.name))
         self.viewer_observable.show_data(dte)
 
         # dwa_observations = self.algorithm.get_dwa_obervations(
         #     self.modules_manager.selected_actuators_name)
         self.model_class.update_plots()
 
-        best_individual = dte.get_data_from_name('Individual')
+        best_individual = dte.get_data_from_name(DataNames.Individual.name)
         best_indiv_as_list = [float(best_individual[ind][0]) for ind in range(len(best_individual))]
 
 
@@ -592,17 +602,17 @@ class OptimisationRunner(QtCore.QObject):
                 dte = DataToExport('algo',
                                    data=[self.individual_as_data(
                                        np.array([self.optimisation_algorithm.best_fitness]),
-                                       'Fitness'),
+                                       DataNames.Fitness.name),
                                        self.individual_as_data(
                                            self.optimisation_algorithm.best_individual,
-                                           'Individual'),
-                                       DataCalculated('ProbedData',
+                                           DataNames.Individual.name),
+                                       DataCalculated(DataNames.ProbedData.name,
                                                       data=[np.array([self.input_from_dets])],
                                                       ),
-                                       self.output_to_actuators.merge_as_dwa('Data0D',
-                                                                             'Actuators'),
+                                       self.output_to_actuators.merge_as_dwa(
+                                           'Data0D', DataNames.Actuators.name),
                                        DataCalculated(
-                                           'kappa',
+                                           DataNames.Kappa.name,
                                            data=[
                                                np.array([self.optimisation_algorithm.kappa])])
                                          ])
