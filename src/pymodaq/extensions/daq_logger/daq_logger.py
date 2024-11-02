@@ -146,10 +146,10 @@ class DAQ_Logger(CustomExt):
 
         self._actions['infos'].connect_to(self.dashboard.show_log)
 
-    def setup_menu(self):
+    def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
         """
         """
-        file_menu = self.mainwindow.menuBar().addMenu('File')
+        file_menu = menubar.addMenu('File')
         self.affect_to('infos', file_menu)
 
     def value_changed(self, param):

@@ -178,7 +178,7 @@ class DAQ_PID(CustomExt):
         self.set_action_enabled('run', enable)
         self.set_action_enabled('pause', enable)
 
-    def setup_menu(self):
+    def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
         '''
         to be subclassed
         create menu for actions contained into the self.actions_manager, for instance:
