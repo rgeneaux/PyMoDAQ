@@ -313,7 +313,7 @@ class DashBoard(CustomApp):
                         auto_toolbar=False)
         self.add_action('quit', 'Quit', 'close2', "Quit program")
         self.toolbar.addSeparator()
-        self.add_action('config', 'Configuration file', 'tree', "Show Log File in default editor")
+        self.add_action('config', 'Configuration file', 'tree', "General Settings")
         self.add_action('restart', 'Restart', '', "Restart the Dashboard",
                         auto_toolbar=False)
         self.add_action('leco', 'Run Leco Coordinator', '', 'Run a Coordinator on this localhost',
