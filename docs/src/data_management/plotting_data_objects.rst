@@ -37,8 +37,8 @@ track of the maximal reached value.
     %gui qt
     import numpy as np
     
-    from pymodaq.utils.plotting.data_viewers.viewer0D import Viewer0D
-    from pymodaq.utils.data import DataRaw
+    from pymodaq_gui.plotting.data_viewers.viewer0D import Viewer0D
+    from pymodaq_data.data import DataRaw
     
     dwa = DataRaw('my_scalar', data=[np.array([10.6]), np.array([-4.6])],
                   labels=['scalar1', 'scalar2'])
@@ -93,8 +93,8 @@ will translate into rich plots:
 
 .. code:: ipython3
 
-    from pymodaq.utils import math_utils as mutils
-    from pymodaq.utils.data import Axis
+    from pymodaq_utils.utils import math_utils as mutils
+    from pymodaq_data.data import Axis
     
     axis = Axis('my axis', units='my units', data=np.linspace(-10000, 10000, 100))
     
@@ -365,7 +365,7 @@ signal/navigation, see :ref:`DataND <navigation_signal>`.
 
 .. code:: ipython3
 
-    from pymodaq.utils.plotting.data_viewers.viewerND import ViewerND
+    from pymodaq_gui.plotting.data_viewers.viewerND import ViewerND
     viewerND = ViewerND()
 
 .. figure:: plotting_data/viewerND_simple.png
@@ -557,7 +557,7 @@ dedicated plotter should also exist, let's see:
 
 .. code:: ipython3
 
-    from pymodaq.utils.data import DataToExport
+    from pymodaq_data.data import DataToExport
     
     dte = DataToExport('MyDte', data=[dwa1D, dwa3D])
     dte.plot('qt')

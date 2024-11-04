@@ -248,7 +248,8 @@ and further processed by DAQ_Scan or DAQ_Viewer instances. The code below is an 
 
 .. code-block:: python
 
-    from pymodaq.utils.data import Axis, DataFromPlugins, DataToExport
+    from pymodaq_data.data import Axis, DataToExport
+    from pymodaq.utils.data import DataFromPlugins
     x_axis = Axis(label='Wavelength', units= "nm", data = vector_X)
     y_axis = Axis(data=vector_Y)
     self.dte_signal.emit(DataToExport('mydata', data=[
@@ -713,7 +714,7 @@ Specifics commands for the :py:class:`DAQ_Viewer<pymodaq.control_modules.daq_vie
 * stop: stop the grab
 
 The interesting bit is the possibility to display a
-:py:class:`LCD widget<pymodaq.utils.gui_utils.widgets.lcd.LCD>` to display some numerical values (could be
+:py:class:`LCD widget<pymodaq_gui.utils.widgets.lcd.LCD>` to display some numerical values (could be
 0D Data also emitted using the ``dte_signal`` but could also be any values). You should first init the LCD screen
 using the command: ``init_lcd`` with an attribute being a dictionary with keys either:
 
