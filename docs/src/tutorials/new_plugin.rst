@@ -34,6 +34,11 @@ No worries, you don't have to start from scratch, but from a fairly complete tem
 The PyMoDAQ's plugin template repository
 ----------------------------------------
 
+.. note::
+    This is the tutorial for the last version, if you want to develop a plugin for the version 4.x, change the documentation version accordingly.
+
+    	.. image:: /image/tutorial_template/pymodaq_change_doc_version.png
+
 Among all the PyMoDAQ related GitHub repositories, there is one that is a bit different. This is the
 `pymodaq_plugins_template <https://github.com/PyMoDAQ/pymodaq_plugins_template>`_ (see :numref:`template_repo`).
 
