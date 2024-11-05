@@ -17,7 +17,7 @@ logger = set_logger(get_module_name(__file__))
 remote_path = get_set_remote_path()
 remote_types = ['ShortCut', 'Joystick']
 
-actuator_actions = ['move_Rel', 'move_Rel_p', 'move_Rel_m']
+actuator_actions = ['move_rel', 'move_rel_p', 'move_rel_m']
 detector_actions = ['snap', 'grab', 'stop']
 remote_types = ['Keyboard', 'Joystick']
 
