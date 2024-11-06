@@ -24,8 +24,8 @@ from pymodaq_gui.parameter import Parameter
 from pymodaq_data.data import DataToExport
 
 from pymodaq.utils.data import DataFromPlugins, DataActuator
-from pymodaq.utils.tcp_ip.mysocket import Socket
-from pymodaq.utils.tcp_ip.serializer import Serializer, DeSerializer
+from pymodaq_data.serialize.mysocket import Socket
+from pymodaq_data.serialize.serializer import Serializer, DeSerializer
 from pymodaq_gui.managers.parameter_manager import ParameterManager
 
 config = Config()
