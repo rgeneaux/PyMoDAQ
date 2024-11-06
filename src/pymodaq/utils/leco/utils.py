@@ -1,27 +1,29 @@
 from __future__ import annotations
 import subprocess
 import sys
-from typing import Any, Optional, Union, get_args
-
+from typing import Any, Optional, Union, get_args, TypeVar
+from pymodaq_data import data
+from pymodaq.utils import data
 # import also the DeSerializer for easier imports in dependents
-from pymodaq.utils.tcp_ip.serializer import SERIALIZABLE, Serializer, DeSerializer  # type: ignore  # noqa
+from pymodaq_data.serialize.serializer_legacy import Serializer, DeSerializer, SerializableFactory
+# type: ignore  # noqa
 from pymodaq_utils.logger import set_logger
 
 
 logger = set_logger('leco_utils')
-
+ser_factory = SerializableFactory()
 JSON_TYPES = Union[str, int, float]
+
+SERIALIZABLE = ser_factory.get_serialazables()
 
 
 def serialize_object(pymodaq_object: Union[SERIALIZABLE, Any]) -> Union[str, Any]:
     """Serialize a pymodaq object, if it is not JSON compatible."""
     if isinstance(pymodaq_object, get_args(JSON_TYPES)):
         return pymodaq_object
-    elif isinstance(pymodaq_object, get_args(SERIALIZABLE)):
-        return Serializer(pymodaq_object).to_b64_string()
     else:
-        raise ValueError(f"{pymodaq_object} of type '{type(pymodaq_object).__name__}' is neither "
-                         "JSON serializable, nor via PyMoDAQ.")
+        return Serializer(pymodaq_object).to_b64_string() # will raise a proper error if the object
+    #is not serializable
 
 
 def binary_serialization(
