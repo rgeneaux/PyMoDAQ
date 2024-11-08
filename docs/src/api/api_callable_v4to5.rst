@@ -2,7 +2,12 @@
 Callable list
 =============
 
-.. tabularcolumns:: |p{7cm}|p{7cm}|
+This list is here to help you find the new location of your old import in pymodaq v4 project when migrating to v5.
+
+The following list is organized as such :
+
+* on the left the path of the object in pymodaq v4.
+* on the right colum the path of the same object in pymodaq v5.
 
 .. csv-table:: Callable from 4 to 5
   :file: api_callable_v4to5/callablesfrom4to5.csv
