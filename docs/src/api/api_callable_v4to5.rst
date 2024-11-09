@@ -9,9 +9,10 @@ The following list is organized as such :
 * on the left the path of the object in pymodaq v4.
 * on the right colum the path of the same object in pymodaq v5.
 
-.. csv-table:: Callable from 4 to 5
+.. csv-table::
   :file: api_callable_v4to5/callablesfrom4to5.csv
   :header-rows: 1
+  :class: sphinx-datatable
 
 
 
