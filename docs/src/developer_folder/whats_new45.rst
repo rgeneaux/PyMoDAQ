@@ -59,7 +59,7 @@ Figure :numref:`pymodaq_data_hierarchy` show the layout of this package.
 
 .. _pymodaq_data_hierarchy:
 
-.. figure:: /image/pymodaq_utils_files.png
+.. figure:: /image/pymodaq_data_files.png
    :width: 200
 
    Layout of the ``data`` module
@@ -70,6 +70,14 @@ pymodaq_gui
 ------------
 Set of Qt widgets and graphical components for the PyMoDAQ ecosystem.
 The two main categories are : Managers, Plotting
+
+Figure :numref:`pymodaq_gui_hierarchy` show the layout of this package.
+
+.. _pymodaq_gui_hierarchy:
+
+.. figure:: /image/pymodaq_gui_files.png
+   :width: 200
+
 
 :doc:`Manager</api/api_utility_modules/managers>`
 
