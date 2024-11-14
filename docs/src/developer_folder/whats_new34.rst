@@ -4,8 +4,8 @@ What's new in PyMoDAQ 4
 ***********************
 
 The main modifications in PyMoDAQ 4 is related to the hierarchy
-of the :term:`modules<module>` in the source code and the :ref:`data management<data_management>`.
-
+of the  in the source code and the :ref:`data management<data_management>`.
+:term:`modules<module>`
 The feel and shape of the control modules and the way the DAQ_Scan work have been reworked. A new extension is
 introduced: the Console.
 
