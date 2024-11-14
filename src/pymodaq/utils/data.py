@@ -7,10 +7,9 @@ from typing import List
 
 from pymodaq_utils.warnings import deprecation_msg, user_warning
 
-from pymodaq_data import Q_, Unit
-                               DataSource, DataBase, Axis, NavAxis)  # imported here for
-# backcompatibility
-from pymodaq_data import Q_, Unit  # imported here for backcompatibility
+from pymodaq_data.data import (DataRaw, DataWithAxes, DataToExport, DataCalculated, DataDim,
+                               DataSource, DataBase, Axis, NavAxis, DataDistribution, Q_, Unit,
+                               )  # imported here for backcompatibility
 
 
 class DataActuator(DataRaw):
