@@ -56,6 +56,7 @@ Before the :term:`modules<module>` where stored in different places, mainly ``py
 module. You had to install and load the whole PyMoDAQ python :term:`package<package>` if you want to use the Data Objects or acess the hdf5 features.
 Now, you can install only ``pymodaq_data`` (which still requires the all the basic function from utils).
 Figure :numref:`pymodaq_data_hierarchy` show the layout of this package.
+All the datatypes are listed there :doc:`/api/utility_api/data_management`
 
 .. _pymodaq_data_hierarchy:
 
@@ -68,6 +69,7 @@ Figure :numref:`pymodaq_data_hierarchy` show the layout of this package.
 
 pymodaq_gui
 ------------
+This package gathered all the GUI components shared (or to be shared) among all the PyMoDAQ affiliates (dashboard, customapp, extensions...).
 Set of Qt widgets and graphical components for the PyMoDAQ ecosystem.
 The two main categories are : Managers, Plotting
 
@@ -78,14 +80,17 @@ Figure :numref:`pymodaq_gui_hierarchy` show the layout of this package.
 .. figure:: /image/pymodaq_gui_files.png
    :width: 200
 
+   Layout of the ``GUI`` module
 
 :doc:`Manager</api/api_utility_modules/managers>`
++++++++++++++++++++++++++++++++++++++++++++++++++
 
-:doc:ref to /api/api_doc/ ou /api/API_Utility_Modules
-
-* QAction
-* Paramaters
-* Module Managers : DAQ_Moves, DAQ_Viewers...
+* ``QAction``, used for backward compatibility when moved from pushbuttons to QAction
+* ``Parameters``, used to manage all the parameter trees all around the object (global settings, viewer settings, hardware settings...) in PyMoDAQ and in the HDF5 files.
+* ``Module Managers`` : DAQ_Moves, DAQ_Viewers...
 
 :doc:`Plotting</api/api_utility_modules/api_plotting/viewers>`
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+The plotting tools are mainly used for data display, from scalar data up to 4 dimensions data.
+This is also another plotting class (for lcd like display) described there :doc:`/api/api_utility_modules/api_plotting/other_classes`
