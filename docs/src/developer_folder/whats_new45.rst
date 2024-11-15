@@ -19,6 +19,8 @@ The main idea behind this change is to increase modularity, reusability and to b
 
 pymodaq_utils
 ------------
+*(for detailed library information check :doc:`pymodaq_utils</api/API_Utility_Library>`)*
+
 This package provide a set of utilities (constants, methods and classes) that are used in the
 various subpackages of PyMoDAQ (PyMoDAQ itself, but also plugins and data management and user interfaces modules).
 
@@ -50,6 +52,7 @@ in some other programs to use their features. Below is a short description of wh
 
 pymodaq_data
 ------------
+
 All the changes made in PyMoDAQ 4 about :ref:`data management<data_management>` were moved in this package.
 
 Before the :term:`modules<module>` where stored in different places, mainly ``pymodaq.utils.data``, ``pymodaq.utils.h5modules``
@@ -71,7 +74,7 @@ pymodaq_gui
 ------------
 This package gathered all the GUI components shared (or to be shared) among all the PyMoDAQ affiliates (dashboard, customapp, extensions...).
 Set of Qt widgets and graphical components for the PyMoDAQ ecosystem.
-The two main categories are : Managers, Plotting
+The two main categories are : `Managers`_, `Plotting`_
 
 Figure :numref:`pymodaq_gui_hierarchy` show the layout of this package.
 
@@ -82,15 +85,21 @@ Figure :numref:`pymodaq_gui_hierarchy` show the layout of this package.
 
    Layout of the ``GUI`` module
 
-:doc:`Manager</api/api_utility_modules/managers>`
-+++++++++++++++++++++++++++++++++++++++++++++++++
+.. _Managers:
+
+Managers
+++++++++
+*(for detailed library information check :doc:`Managers</api/api_utility_modules/managers>`)*
 
 * ``QAction``, used for backward compatibility when moved from pushbuttons to QAction
 * ``Parameters``, used to manage all the parameter trees all around the object (global settings, viewer settings, hardware settings...) in PyMoDAQ and in the HDF5 files.
 * ``Module Managers`` : DAQ_Moves, DAQ_Viewers...
 
-:doc:`Plotting</api/api_utility_modules/api_plotting/viewers>`
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+.. _Plotting:
+Plotting
+++++++++
+*(for detailed library information check :doc:`Plotting</api/api_utility_modules/api_plotting/viewers>`)*
 
 The plotting tools are mainly used for data display, from scalar data up to 4 dimensions data.
 This is also another plotting class (for lcd like display) described there :doc:`/api/api_utility_modules/api_plotting/other_classes`
