@@ -15,6 +15,8 @@ The main idea behind this change is to increase modularity, reusability and to b
 
 .. figure:: /image/pymomorph4to5.gif
 
+For a full list of correspondence check :doc:`/api/api_callable_v4to5`
+
 .. _pymodaq_utils:
 
 pymodaq_utils
