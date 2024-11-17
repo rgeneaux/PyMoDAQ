@@ -21,7 +21,7 @@ For a full list of correspondence check :doc:`/api/api_callable_v4to5`
 
 pymodaq_utils
 ------------
-*(for detailed library information check :doc:`pymodaq_utils</api/API_Utility_Library>`)*
+*(for detailed library information check* :doc:`pymodaq_utils</api/API_Utility_Library>` *)*
 
 This package provide a set of utilities (constants, methods and classes) that are used in the
 various subpackages of PyMoDAQ (PyMoDAQ itself, but also plugins and data management and user interfaces modules).
