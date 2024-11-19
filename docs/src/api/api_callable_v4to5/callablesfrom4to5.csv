@@ -84,6 +84,7 @@ pymodaq.utils.parameter.ioxml, pymodaq_gui.parameter.ioxml
 pymodaq.utils.parameter.ioxml, pymodaq_gui.parameter.ioxml
 pymodaq.utils.parameter.Parameter, pymodaq_gui.parameter.Parameter
 pymodaq.utils.parameter.ParameterTree, pymodaq_gui.parameter.ParameterTree
+pymodaq.utils.parameter.pymodaq_ptypes, pymodaq_gui.parameter.pymodaq_ptypes
 pymodaq.utils.parameter.pymodaq_ptypes.led.QLED, pymodaq_gui.utils.QLED
 pymodaq.utils.parameter.pymodaq_ptypes.tableview.TableViewCustom, pymodaq_gui.parameter.pymodaq_ptypes.TableViewCustom
 pymodaq.utils.parameter.pymodaq_ptypes.TableViewCustom, pymodaq_gui.parameter.pymodaq_ptypes.TableViewCustom
