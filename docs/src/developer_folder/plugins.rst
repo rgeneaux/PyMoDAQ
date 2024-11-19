@@ -25,14 +25,24 @@ The best way to start creating a PyMoDAQ plugin is to use the template one on `g
 __ https://github.com/PyMoDAQ/pymodaq_plugins_template
 __ https://pymodaq.cnrs.fr/en/latest/tutorials/new_plugin.html
 
-Each new functionality type can be activated within a plugin from the *plugin_info.toml* file (see below) within the
-features section.
+Each new functionality type can be activated within a plugin from a toml plugin configuration file:
+
+* In `PyMoDAQ version 4` the `plugin_info.toml`_ file within the features section.
+* In `PyMoDAQ version 5` the `pyproject.toml`_ file within the features section.
+
+.. _plugin_info.toml:
 
 .. figure:: /image/plugin_development/plugin_info_toml.png
    :alt: plugin_info.toml
 
    Content of a *plugin_info.toml* file
 
+.. _pyproject.toml:
+
+.. figure:: /image/plugin_development/pyproject_toml.png
+   :alt: plugin_info.toml
+
+   Content of a *pyproject.toml* file
 
 
 .. toctree::
