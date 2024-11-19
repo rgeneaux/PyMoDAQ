@@ -4,6 +4,8 @@ What's new in PyMoDAQ 5
 ***********************
 
 The main modifications in PyMoDAQ 5 is related to the organization of the packaging.
+The second one is the change from python packaging with the introduction of `pyproject.toml` (for more information check :doc:`/developer_folder/plugins`)
+and the choice to use `hatch` to manage the building, package versioning and publishing (All those part are treated in the :doc:`/tutorials/new_plugin`).
 
 Three new packages were created to offer features pack independantly :
 
