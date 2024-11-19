@@ -35,7 +35,8 @@ The PyMoDAQ's plugin template repository
 ----------------------------------------
 
 Among all the PyMoDAQ related GitHub repositories, there is one that is a bit different. This is the
-`pymodaq_plugins_template <https://github.com/PyMoDAQ/pymodaq_plugins_template>`_ (see :numref:`template_repo`).
+`pymodaq_plugins_template <https://github.com/PyMoDAQ/pymodaq_plugins_template/tree/5.0.x>`_ (see :numref:`template_repo`).
+for the template corresponding to `PyMoDAQ v5.0.x` (You should switch branch according to the pymodaq version).
 
 
 .. _template_repo:
@@ -78,7 +79,7 @@ For a correct configuration (for your plugin to be installable and recognised by
 files and folders. :numref:`template_structure` highlights the package initial structure. You'll have to:
 
 * rename with the new package name the two directories **highlighted in red**.
-* fill in the appropriate information in plugin_info.toml and README.rst files, **highlighted in green**.
+* fill in the appropriate information in pyproject.toml and README.rst files, **highlighted in green**.
 * rename the python instrument file, **highlighted in purple** with the dedicated instrument name (see
   :ref:`plugin_development` for details on instrument, python file and class name convention).
 * add appropriate default settings in the config_template.toml file (do not rename it) in the resources folder.
@@ -90,6 +91,7 @@ files and folders. :numref:`template_structure` highlights the package initial s
 .. _template_structure:
 
 .. figure:: /image/tutorial_template/template_repo_structure.png
+   :width: 300
 
    The template package initial structure
 
@@ -252,6 +254,9 @@ Since here we want to discover the release process by releasing to TestPyPI rath
 last line of the file and replace it by
 
 ``twine upload -r testpypi dist/*``
+or
+``hatch publish -r test``
+if you're using hatch
 
 .. note::
     In the case of a release to the actual PyPI, we should skip this last step!
