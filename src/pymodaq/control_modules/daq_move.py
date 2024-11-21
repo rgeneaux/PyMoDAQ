@@ -628,10 +628,12 @@ class DAQ_Move(ParameterControlModule):
         if ('°' in unit or 'degree' in unit) and not '°C' in unit:
             # special cas as pint base unit for angles are radians
             return '°'
-        elif 'W' in unit or 'watt' in unit:
+        elif 'W' in unit or 'watt' in unit.lower():
             return 'W'
         elif '°C' in unit or 'Celsius' in unit:
             return '°C'
+        elif 'V' in unit or 'volt' in unit.lower():
+            return 'V'
         else:
             return str(Q_(1, unit).to_base_units().units)
 
