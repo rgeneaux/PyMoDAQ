@@ -1,4 +1,4 @@
-.. _whats_new:
+.. _whats_new4:
 
 What's new in PyMoDAQ 4
 ***********************
