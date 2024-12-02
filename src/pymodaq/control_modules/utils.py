@@ -379,7 +379,7 @@ class ParameterControlModule(ParameterManager, ControlModule):
     listener_class: Type[ActorListener] = ActorListener
 
     def __init__(self, **kwargs):
-        QObject.__init__(self)
+        #QObject.__init__(self)
         ParameterManager.__init__(self, action_list=('save', 'update'))
         ControlModule.__init__(self)
 
