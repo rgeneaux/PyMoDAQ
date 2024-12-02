@@ -1,4 +1,5 @@
-name: '3.9 PyQt6'
+name: '3.11 PySide2'
+
 
 on: [push, workflow_dispatch]
 
@@ -6,5 +7,5 @@ jobs:
   call_workflow:
     uses: ./.github/workflows/Testbase.yml
     with:
-      python: '3.9'
-      qt5: 'pyqt6'
+      python: '3.11'
+      qt5: 'pyside2'
