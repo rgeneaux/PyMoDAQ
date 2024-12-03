@@ -95,7 +95,7 @@ Managers
 ++++++++
 *(for detailed library information check* :doc:`Managers</api/api_utility_modules/managers>` *)*
 
-* ``ActionManager``, offers to all user interfaces ``QAction`` and connected actions.
+* ``ActionManager``, offers to all user interfaces ``QAction`` and connected actions management.
 * ``ParameterManager``, used to manage all the ``ParameterTree`` (from pyqtgraph) in pymodaq modules (global settings, viewer settings, hardware settings...).
 * ``ModulesManager`` : DAQ_Moves, DAQ_Viewers...
 
