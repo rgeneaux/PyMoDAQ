@@ -21,8 +21,8 @@ For a full list of matching path of objects between version 4 and 5, check :doc:
 
 .. _pymodaq_utils:
 
-pymodaq_utils
-------------
+PyMoDAQ Utils
+-------------
 *(for detailed library information check* :doc:`pymodaq_utils</api/API_Utility_Library>` *)*
 
 This package provide a set of utilities (constants, methods and classes) that are used in the
@@ -54,7 +54,7 @@ in some other programs to use their features. Below is a short description of wh
 
 .. _pymodaq_data:
 
-pymodaq_data
+PyMoDAQ Data
 ------------
 
 All the changes made in PyMoDAQ 4 about :ref:`data management<data_management>` were moved in this package.
@@ -74,7 +74,7 @@ All the datatypes are listed there :doc:`/api/utility_api/data_management`
 
 .. _pymodaq_gui:
 
-pymodaq_gui
+PyMoDAQ GUI
 ------------
 This package gathered all the GUI components shared (or to be shared) among all the PyMoDAQ affiliates (dashboard, customapp, extensions...).
 Set of Qt widgets and graphical components for the PyMoDAQ ecosystem.
