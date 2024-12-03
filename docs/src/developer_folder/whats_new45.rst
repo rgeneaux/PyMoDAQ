@@ -95,9 +95,9 @@ Managers
 ++++++++
 *(for detailed library information check* :doc:`Managers</api/api_utility_modules/managers>` *)*
 
-* ``QAction``, used for backward compatibility when moved from pushbuttons to QAction
-* ``Parameters``, used to manage all the parameter trees all around the object (global settings, viewer settings, hardware settings...) in PyMoDAQ and in the HDF5 files.
-* ``Module Managers`` : DAQ_Moves, DAQ_Viewers...
+* ``ActionManager``, offers to all user interfaces ``QAction`` and connected actions.
+* ``ParameterManager``, used to manage all the ``ParameterTree`` (from pyqtgraph) in pymodaq modules (global settings, viewer settings, hardware settings...).
+* ``ModulesManager`` : DAQ_Moves, DAQ_Viewers...
 
 
 .. _Plotting:
