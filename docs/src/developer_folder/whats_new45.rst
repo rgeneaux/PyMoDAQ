@@ -93,7 +93,7 @@ Figure :numref:`pymodaq_gui_hierarchy` show the layout of this package.
 
 Managers
 ++++++++
-*(for detailed library information check :doc:`Managers</api/api_utility_modules/managers>`)*
+*(for detailed library information check* :doc:`Managers</api/api_utility_modules/managers>` *)*
 
 * ``QAction``, used for backward compatibility when moved from pushbuttons to QAction
 * ``Parameters``, used to manage all the parameter trees all around the object (global settings, viewer settings, hardware settings...) in PyMoDAQ and in the HDF5 files.
@@ -103,7 +103,7 @@ Managers
 .. _Plotting:
 Plotting
 ++++++++
-*(for detailed library information check :doc:`Plotting</api/api_utility_modules/api_plotting/viewers>`)*
+*(for detailed library information check* :doc:`Plotting</api/api_utility_modules/api_plotting/viewers>` *)*
 
 The plotting tools are mainly used for data display, from scalar data up to 4 dimensions data.
 This is also another plotting class (for lcd like display) described there :doc:`/api/api_utility_modules/api_plotting/other_classes`
