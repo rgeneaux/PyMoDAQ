@@ -152,7 +152,8 @@ class DAQ_xDViewer_LECODirector(LECODirector, DAQ_Viewer_base):
         self.y_axis = dict(data=data, label=label, units=units)
         self.emit_y_axis()
 
-    def set_data(self, data: Union[list, str, None], additional_payload: Optional[list[bytes]]=None) -> None:
+    def set_data(self, data: Union[list, str, None],
+                 additional_payload: Optional[list[bytes]]=None) -> None:
         """
         Set the grabbed data signal.
 

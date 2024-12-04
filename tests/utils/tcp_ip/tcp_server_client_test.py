@@ -1,16 +1,13 @@
 import pytest
 import numpy as np
-import socket
 
 from unittest import mock
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.tcp_ip.tcp_server_client import MockServer, TCPClient, TCPServer
-from pymodaq.utils.tcp_ip.mysocket import Socket
-from pymodaq.utils.tcp_ip.serializer import Serializer, DeSerializer
+from pymodaq_utils.serialize.mysocket import Socket
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer
 from pyqtgraph.parametertree import Parameter
-from pyqtgraph import SRTTransform
-from collections import OrderedDict
-from pymodaq.utils.exceptions import ExpectedError, Expected_1, Expected_2, Expected_3
+from pymodaq.utils.exceptions import Expected_1, Expected_2
 from pymodaq.utils.data import DataActuator, DataToExport
 
 
@@ -66,65 +63,6 @@ class MockPythonSocket:  # pragma: no cover
 
     def setsockopt(self, *args, **kwargs):
         pass
-
-
-class TestSocket:
-    def test_init(self):
-        test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        test_Socket = Socket(test_socket)
-        assert isinstance(test_Socket, Socket)
-        assert test_Socket.socket == test_socket
-        assert test_Socket.__eq__(test_Socket)
-    
-    def test_base_fun(self):
-        test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        test_Socket = Socket(test_socket)
-        test_Socket.bind(('', 5544))
-        test_Socket.listen
-        assert test_Socket.getsockname() == ('0.0.0.0', 5544)
-        assert test_Socket.accept
-        assert test_Socket.connect
-        assert test_Socket.send
-        assert test_Socket.sendall
-        assert test_Socket.recv
-        test_Socket.close()
-
-        test_socket = MockPythonSocket()
-        test_Socket = Socket(test_socket)
-        test_Socket.bind(('', 5544))
-        test_Socket.listen()
-        assert test_Socket.socket._listen
-        assert test_Socket.getsockname() == ('0.0.0.0', 5544)
-        assert test_Socket.accept()[1] == '0.0.0.0'
-        test_Socket.connect()
-        assert test_Socket.socket._isconnected
-        test_Socket.send(b'test')
-        assert b'test' in test_Socket.socket._send
-        test_Socket.sendall(b'test')
-        assert b'test' in test_Socket.socket._sendall
-        test_Socket.recv(4)
-        assert b'test' not in test_Socket.socket._send
-        test_Socket.close()
-        assert test_Socket.socket._closed
-
-    def test_check_sended(self):
-        test_Socket = Socket(MockPythonSocket())
-        test_Socket.check_sended(b'test')
-        assert b'test' in test_Socket.socket._send
-
-        with pytest.raises(TypeError):
-            test_Socket.check_sended('test')
-
-    def test_check_received_length(self):
-        test_Socket = Socket(MockPythonSocket())
-        test_Socket.send(b'test')
-        test_Socket.check_received_length(4)
-        assert not test_Socket.socket._send
-
-        for i in range(1025):
-            test_Socket.send(b'test')
-        test_Socket.check_received_length(4100)
-        assert not test_Socket.socket._send
 
 
 class TestTCPClient:
