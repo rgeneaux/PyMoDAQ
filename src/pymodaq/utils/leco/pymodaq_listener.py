@@ -1,4 +1,5 @@
 
+from base64 import b64decode
 try:
     from enum import StrEnum  # type: ignore
 except ImportError:
@@ -8,16 +9,17 @@ except ImportError:
         pass
 import logging
 from threading import Event
-from typing import Optional, Union, List, Type
+from typing import cast, Optional, Union, List, Type
 
 from pyleco.core import COORDINATOR_PORT
 from pyleco.utils.listener import Listener, PipeHandler
 from qtpy.QtCore import QObject, Signal  # type: ignore
 
+from pymodaq_data.data import DataWithAxes
+from pymodaq_utils.serialize.factory import SerializableFactory
 from pymodaq_utils.utils import ThreadCommand
 from pymodaq_gui.parameter import ioxml
-from pymodaq_data.data import DataWithAxes
-from pymodaq_utils.serialize.serializer_legacy import SERIALIZABLE, DeSerializer
+
 from pymodaq.utils.leco.utils import binary_serialization_to_kwargs
 
 
@@ -75,8 +77,8 @@ class ActorHandler(PymodaqPipeHandler):
     @staticmethod
     def extract_dwa_object(data_string: str) -> DataWithAxes:
         """Extract a DataWithAxes object from the received message."""
-        desererializer = DeSerializer.from_b64_string(data_string)
-        return desererializer.dwa_deserialization()
+        decoded = b64decode(data_string)
+        return cast(DataWithAxes, SerializableFactory().get_apply_deserializer(decoded))
 
     # generic commands
     def set_info(self, path: List[str], param_dict_str: str) -> None:
@@ -249,27 +251,30 @@ class ActorListener(PymodaqListener):
 
         elif command.command == 'x_axis':
             value = command.attribute[0]  # type: ignore
-            if isinstance(value, SERIALIZABLE):
-                self.communicator.ask_rpc(receiver=self.remote_name,
-                                          method="set_x_axis",
-                                          **binary_serialization_to_kwargs(value),
-                                          )
-            elif isinstance(value, dict):
-                self.communicator.ask_rpc(receiver=self.remote_name, method="set_x_axis", **value)
+            if isinstance(value, dict):
+                self.communicator.ask_rpc(
+                    receiver=self.remote_name, method="set_x_axis", **value
+                )
             else:
-                raise ValueError("Nothing to send!")
+                self.communicator.ask_rpc(
+                    receiver=self.remote_name,
+                    method="set_x_axis",
+                    **binary_serialization_to_kwargs(value),
+                )
+
 
         elif command.command == 'y_axis':
             value = command.attribute[0]  # type: ignore
-            if isinstance(value, SERIALIZABLE):
-                self.communicator.ask_rpc(receiver=self.remote_name,
-                                          method="set_y_axis",
-                                          **binary_serialization_to_kwargs(value),
-                                          )
-            elif isinstance(value, dict):
-                self.communicator.ask_rpc(receiver=self.remote_name, method="set_y_axis", **value)
+            if isinstance(value, dict):
+                self.communicator.ask_rpc(
+                    receiver=self.remote_name, method="set_y_axis", **value
+                )
             else:
-                raise ValueError("Nothing to send!")
+                self.communicator.ask_rpc(
+                    receiver=self.remote_name,
+                    method="set_y_axis",
+                    **binary_serialization_to_kwargs(value),
+                )
 
         else:
             raise IOError('Unknown TCP client command')

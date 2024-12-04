@@ -1,29 +1,23 @@
 from __future__ import annotations
+from base64 import b64encode
 import subprocess
 import sys
-from typing import Any, Optional, Union, get_args, TypeVar
-from pymodaq_data import data
-from pymodaq.utils import data
-# import also the DeSerializer for easier imports in dependents
-from pymodaq_utils.serialize.serializer_legacy import Serializer, DeSerializer, SerializableFactory
-# type: ignore  # noqa
+from typing import Any, Optional, Union, get_args
+
+from pymodaq_utils.serialize.factory import SERIALIZABLE, SerializableFactory
 from pymodaq_utils.logger import set_logger
 
 
 logger = set_logger('leco_utils')
-ser_factory = SerializableFactory()
 JSON_TYPES = Union[str, int, float]
-
-SERIALIZABLE = ser_factory.get_serializables()
 
 
 def serialize_object(pymodaq_object: Union[SERIALIZABLE, Any]) -> Union[str, Any]:
     """Serialize a pymodaq object, if it is not JSON compatible."""
     if isinstance(pymodaq_object, get_args(JSON_TYPES)):
         return pymodaq_object
-    else:
-        return Serializer(pymodaq_object).to_b64_string() # will raise a proper error if the object
-    #is not serializable
+    binary = SerializableFactory().get_apply_serializer(pymodaq_object)
+    return b64encode(binary).decode()
 
 
 def binary_serialization(
@@ -32,13 +26,7 @@ def binary_serialization(
     """Serialize (binary) a pymodaq object, if it is not JSON compatible."""
     if isinstance(pymodaq_object, get_args(JSON_TYPES)):
         return pymodaq_object, None
-    elif isinstance(pymodaq_object, get_args(SERIALIZABLE)):
-        return None, [Serializer(pymodaq_object).to_bytes()]
-    else:
-        raise ValueError(
-            f"{pymodaq_object} of type '{type(pymodaq_object).__name__}' is neither "
-            "JSON serializable, nor via PyMoDAQ."
-        )
+    return None, [SerializableFactory().get_apply_serializer(pymodaq_object)]
 
 
 def binary_serialization_to_kwargs(
@@ -62,6 +50,5 @@ def start_coordinator():
                 run_coordinator()
             else:
                 logger.info('Coordinator already running')
-    except ConnectionRefusedError as e:
+    except ConnectionRefusedError:
         run_coordinator()
-
