@@ -7,17 +7,21 @@ running: `python -m pyleco.coordinators.coordinator`
 
 """
 
+from base64 import b64decode
 from typing import Union
 
 from pymodaq.control_modules.move_utility_classes import (DAQ_Move_base, comon_parameters_fun, main,
                                                           DataActuatorType, DataActuator)
 
 from pymodaq_utils.utils import ThreadCommand
+from pymodaq_utils.serialize.factory import SerializableFactory
 from pymodaq_gui.parameter import Parameter
 
 from pymodaq.utils.leco.leco_director import LECODirector, leco_parameters
 from pymodaq.utils.leco.director_utils import ActuatorDirector
+
 from pymodaq_utils.serialize.serializer_legacy import DeSerializer
+
 
 class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
     """A control module, which in the dashboard, allows to control a remote Move module.
@@ -147,12 +151,12 @@ class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
     ) -> DataActuator:
         if position:
             if isinstance(position, str):
-                deserializer = DeSerializer.from_b64_string(position)
-                pos = deserializer.dwa_deserialization()
+                decoded = b64decode(position)
+                pos = SerializableFactory().get_apply_deserializer(decoded)
             else:
                 pos = DataActuator(data=position)
         elif additional_payload is not None:
-            pos = DeSerializer(additional_payload[0]).dwa_deserialization()
+            pos = SerializableFactory().get_apply_deserializer(additional_payload[0])
         else:
             raise ValueError("No position given")
         pos = self.get_position_with_scaling(pos)  # type: ignore
