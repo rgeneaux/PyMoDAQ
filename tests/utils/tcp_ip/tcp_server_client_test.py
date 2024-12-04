@@ -4,8 +4,8 @@ import numpy as np
 from unittest import mock
 from pymodaq.utils.daq_utils import ThreadCommand
 from pymodaq.utils.tcp_ip.tcp_server_client import MockServer, TCPClient, TCPServer
-from pymodaq_data.serialize.mysocket import Socket
-from pymodaq_data.serialize.serializer_legacy import DeSerializer
+from pymodaq_utils.serialize.mysocket import Socket
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer
 from pyqtgraph.parametertree import Parameter
 from pymodaq.utils.exceptions import Expected_1, Expected_2
 from pymodaq.utils.data import DataActuator, DataToExport

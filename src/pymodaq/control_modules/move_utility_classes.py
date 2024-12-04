@@ -28,8 +28,8 @@ from pymodaq.utils.messenger import deprecation_msg
 from pymodaq.utils.data import DataActuator
 from pymodaq_utils.enums import BaseEnum, enum_checker
 
-from pymodaq_data.serialize.mysocket import Socket
-from pymodaq_data.serialize.serializer_legacy import DeSerializer, Serializer
+from pymodaq_utils.serialize.mysocket import Socket
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer, Serializer
 from pymodaq import Unit
 from pint.errors import OffsetUnitCalculusError
 

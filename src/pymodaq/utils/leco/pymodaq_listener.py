@@ -17,7 +17,7 @@ from qtpy.QtCore import QObject, Signal  # type: ignore
 from pymodaq_utils.utils import ThreadCommand
 from pymodaq_gui.parameter import ioxml
 from pymodaq_data.data import DataWithAxes
-from pymodaq_data.serialize.serializer_legacy import SERIALIZABLE, DeSerializer
+from pymodaq_utils.serialize.serializer_legacy import SERIALIZABLE, DeSerializer
 from pymodaq.utils.leco.utils import binary_serialization_to_kwargs
 
 

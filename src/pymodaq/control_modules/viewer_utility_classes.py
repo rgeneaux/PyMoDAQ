@@ -15,8 +15,8 @@ from pymodaq_utils.config import Config, get_set_local_dir
 from pymodaq.utils.tcp_ip.tcp_server_client import TCPServer, tcp_parameters
 from pymodaq_data.data import DataToExport, DataRaw
 from pymodaq_utils.warnings import deprecation_msg
-from pymodaq_data.serialize.mysocket import Socket
-from pymodaq_data.serialize.serializer_legacy import DeSerializer, Serializer
+from pymodaq_utils.serialize.mysocket import Socket
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer, Serializer
 
 comon_parameters = [{'title': 'Controller Status:', 'name': 'controller_status', 'type': 'list', 'value': 'Master',
                      'limits': ['Master', 'Slave']}, ]

@@ -5,7 +5,7 @@ from typing import Any, Optional, Union, get_args, TypeVar
 from pymodaq_data import data
 from pymodaq.utils import data
 # import also the DeSerializer for easier imports in dependents
-from pymodaq_data.serialize.serializer_legacy import Serializer, DeSerializer, SerializableFactory
+from pymodaq_utils.serialize.serializer_legacy import Serializer, DeSerializer, SerializableFactory
 # type: ignore  # noqa
 from pymodaq_utils.logger import set_logger
 
@@ -14,7 +14,7 @@ logger = set_logger('leco_utils')
 ser_factory = SerializableFactory()
 JSON_TYPES = Union[str, int, float]
 
-SERIALIZABLE = ser_factory.get_serialazables()
+SERIALIZABLE = ser_factory.get_serializables()
 
 
 def serialize_object(pymodaq_object: Union[SERIALIZABLE, Any]) -> Union[str, Any]:
