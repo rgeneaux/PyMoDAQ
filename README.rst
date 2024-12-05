@@ -13,39 +13,128 @@ PyMoDAQ
  :target: https://codecov.io/gh/PyMoDAQ/PyMoDAQ
 
 
-====== ========== ======= ======
-Python Qt Backend OS      Passed
-====== ========== ======= ======
-3.8    Qt5        Linux   |38Qt5|
-3.9    Qt5        Linux   |39Qt5|
-3.10   Qt5        Linux   |310Qt5|
-3.11   Qt5        Linux   |311Qt5|
-3.11   Qt5        Windows |311Qt5win|
-3.8    PySide2    Linux   |38pyside|
-3.9    Qt6        Linux   |39Qt6|
-====== ========== ======= ======
+
++-------------+-------------------+------------------+---------------------+---------------------+
+|  Linux      | PyQt5             | PyQt6            | PySide2             | PySide6             |
++=============+===================+==================+=====================+=====================+
+| Python 3.9  | |39-linux-pyqt5|  | |39-linux-pyqt6| | |39-linux-pyside2|  | |39-linux-pyside6|  |
++-------------+-------------------+------------------+---------------------+---------------------+
+| Python 3.10 | |310-linux-pyqt5| ||310-linux-pyqt6| | |310-linux-pyside2| | |310-linux-pyside6| |
++-------------+-------------------+------------------+---------------------+---------------------+
+| Python 3.11 | |311-linux-pyqt5| ||311-linux-pyqt6| | |311-linux-pyside2| | |311-linux-pyside6| |
++-------------+-------------------+------------------+---------------------+---------------------+
+| Python 3.12 | |312-linux-pyqt5| ||312-linux-pyqt6| | |312-linux-pyside2| | |312-linux-pyside6| |
++-------------+-------------------+------------------+---------------------+---------------------+
 
 
-.. |38Qt5| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp38pyqt5.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp38pyqt5.yml
+.. |39-linux-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.9_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
-.. |39Qt5| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp39pyqt5.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp39pyqt5.yml
+.. |39-linux-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.9_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
-.. |310Qt5| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp310pyqt5.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp310pyqt5.yml
+.. |39-linux-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.9_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
-.. |311Qt5| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp311pyqt5.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp311pyqt5.yml
+.. |39-linux-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.9_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
-.. |311Qt5win| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp311pyqt5_win.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp311pyqt5_win.yml
+.. |310-linux-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.10_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
-.. |38pyside| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp38pyside2.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp38pyside2.yml
+.. |310-linux-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.10_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
-.. |39Qt6| image:: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp39pyqt6.yml/badge.svg?branch=5.0.x_dev
-    :target: https://github.com/PyMoDAQ/PyMoDAQ/actions/workflows/Testp39pyqt6.yml
+.. |310-linux-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.10_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |310-linux-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.10_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-linux-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.11_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-linux-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.11_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-linux-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.11_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-linux-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.11_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-linux-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.12_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-linux-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.12_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-linux-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.12_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-linux-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Linux_3.12_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+
++-------------+---------------------+--------------------+-----------------------+-----------------------+
+|  Windows    | PyQt5               | PyQt6              | PySide2               | PySide6               |
++=============+=====================+====================+=======================+=======================+
+| Python 3.9  | |39-windows-pyqt5|  | |39-windows-pyqt6| | |39-windows-pyside2|  | |39-windows-pyside6|  |
++-------------+---------------------+--------------------+-----------------------+-----------------------+
+| Python 3.10 | |310-windows-pyqt5| ||310-windows-pyqt6| | |310-windows-pyside2| | |310-windows-pyside6| |
++-------------+---------------------+--------------------+-----------------------+-----------------------+
+| Python 3.11 | |311-windows-pyqt5| ||311-windows-pyqt6| | |311-windows-pyside2| | |311-windows-pyside6| |
++-------------+---------------------+--------------------+-----------------------+-----------------------+
+| Python 3.12 | |312-windows-pyqt5| ||312-windows-pyqt6| | |312-windows-pyside2| | |312-windows-pyside6| |
++-------------+---------------------+--------------------+-----------------------+-----------------------+
+
+.. |39-windows-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.9_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |39-windows-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.9_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |39-windows-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.9_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |39-windows-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.9_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |310-windows-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.10_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |310-windows-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.10_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |310-windows-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.10_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |310-windows-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.10_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-windows-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.11_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-windows-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.11_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-windows-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.11_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |311-windows-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.11_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-windows-pyqt5| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.12_pyqt5.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-windows-pyqt6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.12_pyqt6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-windows-pyside2| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.12_pyside2.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
+
+.. |312-windows-pyside6| image:: https://raw.githubusercontent.com/malik-irain/PyMoDAQ/badges/pyside6-github-actions/tests_Windows_3.12_pyside6.svg
+    :target: https://github.com/malik-irain/PyMoDAQ/actions/workflows/tests.yml
 
 
 
