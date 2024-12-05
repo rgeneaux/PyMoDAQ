@@ -9,14 +9,14 @@ except ImportError:
         pass
 import logging
 from threading import Event
-from typing import cast, Optional, Union, List, Type
+from typing import cast, Optional, Union, List, Sequence, Type
 
 from pyleco.core import COORDINATOR_PORT
 from pyleco.utils.listener import Listener, PipeHandler
 from qtpy.QtCore import QObject, Signal  # type: ignore
 
 from pymodaq_data.data import DataWithAxes
-from pymodaq_utils.serialize.factory import SerializableFactory
+from pymodaq_utils.serialize.factory import SerializableFactory, SerializableBase
 from pymodaq_utils.utils import ThreadCommand
 from pymodaq_gui.parameter import ioxml
 
@@ -60,25 +60,50 @@ class PymodaqPipeHandler(PipeHandler):
     def __init__(self, name: str, signals: ListenerSignals, **kwargs) -> None:
         super().__init__(name, **kwargs)
         self.signals = signals
+        self.register_data_types_for_deserialization()
 
+    def register_data_types_for_deserialization(
+        self, types: Optional[Sequence[type[SerializableBase]]] = None
+    ) -> None:
+        """Register different data types for deserialization in subclasses."""
+        if types is None:
+            return
+        for cls in types:
+            SerializableFactory().register_from_type(
+                cls, cls.serialize, cls.deserialize
+            )
 
 class ActorHandler(PymodaqPipeHandler):
+    def register_data_types_for_deserialization(
+        self, types: Optional[Sequence[type[SerializableBase]]] = None
+    ) -> None:
+        all_types: Sequence[type[SerializableBase]] = [DataWithAxes]
+        if types:
+            all_types.extend(types)  # type: ignore
+        super().register_data_types_for_deserialization(all_types)
 
     def register_rpc_methods(self) -> None:
         super().register_rpc_methods()
         self.register_rpc_method(self.set_info)
         self.register_rpc_method(self.send_data)
-        self.register_rpc_method(self.move_abs)
-        self.register_rpc_method(self.move_rel)
+        self.register_binary_rpc_method(self.move_abs, accept_binary_input=True)
+        self.register_binary_rpc_method(self.move_rel, accept_binary_input=True)
         self.register_rpc_method(self.move_home)
         self.register_rpc_method(self.get_actuator_value)
         self.register_rpc_method(self.stop_motion)
 
     @staticmethod
-    def extract_dwa_object(data_string: str) -> DataWithAxes:
-        """Extract a DataWithAxes object from the received message."""
-        decoded = b64decode(data_string)
-        return cast(DataWithAxes, SerializableFactory().get_apply_deserializer(decoded))
+    def extract_pymodaq_object(
+        value: Optional[Union[float, str]], additional_payload: Optional[List[bytes]]
+    ):
+        if value is None and additional_payload:
+            res = cast(DataWithAxes, SerializableFactory().get_apply_deserializer(additional_payload[0]))
+        elif isinstance(value, str):
+            decoded = b64decode(value)
+            res = cast(DataWithAxes, SerializableFactory().get_apply_deserializer(decoded))
+        else:
+            res = value
+        return res
 
     # generic commands
     def set_info(self, path: List[str], param_dict_str: str) -> None:
@@ -89,12 +114,20 @@ class ActorHandler(PymodaqPipeHandler):
         self.signals.cmd_signal.emit(ThreadCommand(f"Send Data {grabber_type}"))
 
     # actuator commands
-    def move_abs(self, position: Union[float, str]) -> None:
-        pos = self.extract_dwa_object(position) if isinstance(position, str) else position
+    def move_abs(
+        self,
+        position: Optional[Union[float, str]],
+        additional_payload: Optional[List[bytes]] = None,
+    ) -> None:
+        pos = self.extract_pymodaq_object(position, additional_payload)
         self.signals.cmd_signal.emit(ThreadCommand("move_abs", attribute=[pos]))
 
-    def move_rel(self, position: Union[float, str]) -> None:
-        pos = self.extract_dwa_object(position) if isinstance(position, str) else position
+    def move_rel(
+        self,
+        position: Optional[Union[float, str]],
+        additional_payload: Optional[List[bytes]] = None,
+    ) -> None:
+        pos = self.extract_pymodaq_object(position, additional_payload)
         self.signals.cmd_signal.emit(ThreadCommand("move_rel", attribute=[pos]))
 
     def move_home(self) -> None:
