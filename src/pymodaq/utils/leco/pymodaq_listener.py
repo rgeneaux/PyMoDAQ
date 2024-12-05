@@ -236,14 +236,18 @@ class ActorListener(PymodaqListener):
                 param_dict_str=ioxml.parameter_to_xml_string(param).decode())
 
         elif command.command == LECOMoveCommands.POSITION:
-            value = command.attribute[0]  # type: ignore
+            value = command.attribute
+            if isinstance(value, (list, tuple)):
+                value = value[0]  # for backward compatibility with attributes list
             self.communicator.ask_rpc(receiver=self.remote_name,
                                       method="set_position",
-                                      **binary_serialization_to_kwargs(value, data_key="position"),
+                                      **binary_serialization_to_kwargs(pymodaq_object=value, data_key="position"),
                                       )
 
         elif command.command == LECOMoveCommands.MOVE_DONE:
-            value = command.attribute[0]  # type: ignore
+            value = command.attribute
+            if isinstance(value, (list, tuple)):
+                value = value[0]  # for backward compatibility with attributes list
             self.communicator.ask_rpc(receiver=self.remote_name,
                                       method="set_move_done",
                                       **binary_serialization_to_kwargs(value, data_key="position"),
@@ -264,7 +268,9 @@ class ActorListener(PymodaqListener):
 
 
         elif command.command == 'y_axis':
-            value = command.attribute[0]  # type: ignore
+            value = command.attribute
+            if isinstance(value, (list, tuple)):
+                value = value[0]  # for backward compatibility with attributes list
             if isinstance(value, dict):
                 self.communicator.ask_rpc(
                     receiver=self.remote_name, method="set_y_axis", **value
