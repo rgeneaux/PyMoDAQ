@@ -50,7 +50,7 @@ class TCPClientTemplate:
         client_type: (str) should be one of the accepted client_type by the TCPServer instance (within pymodaq it is
                             either 'GRABBER' or 'ACTUATOR'
         """
-        super().__init__()
+        #super().__init__()
 
         self.ipaddress = ipaddress
         self.port = port
