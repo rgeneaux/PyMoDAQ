@@ -54,6 +54,24 @@ dependencies = [
     "bayesian-optimization<2.0.0",
 ]
 
+
+[project.optional-dependencies]
+dev = [
+    "hatch", 
+    "flake8",
+    "h5py",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+
+    "pyqt5",
+    "pyqt6",
+    "pyside6",
+    "pytest-qt",
+    "pytest-xvfb",
+]
+
+
 [project.scripts]
 daq_logger = "pymodaq.extensions.daq_logger:main"
 daq_move = "pymodaq.control_modules.daq_move:main"
