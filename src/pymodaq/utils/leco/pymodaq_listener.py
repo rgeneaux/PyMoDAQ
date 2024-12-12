@@ -119,6 +119,11 @@ class ActorHandler(PymodaqPipeHandler):
         position: Optional[Union[float, str]],
         additional_payload: Optional[List[bytes]] = None,
     ) -> None:
+        """Move to an absolute position.
+
+        :param position: Deprecated, should be None and content transferred binary.
+        :param additional_payload: binary frames containing the position as PyMoDAQ `DataActuator`.
+        """
         pos = self.extract_pymodaq_object(position, additional_payload)
         self.signals.cmd_signal.emit(ThreadCommand("move_abs", attribute=[pos]))
 
@@ -127,6 +132,11 @@ class ActorHandler(PymodaqPipeHandler):
         position: Optional[Union[float, str]],
         additional_payload: Optional[List[bytes]] = None,
     ) -> None:
+        """Move by a relative position.
+
+        :param position: Deprecated, should be None and content transferred binary.
+        :param additional_payload: binary frames containing the position as PyMoDAQ `DataActuator`.
+        """
         pos = self.extract_pymodaq_object(position, additional_payload)
         self.signals.cmd_signal.emit(ThreadCommand("move_rel", attribute=[pos]))
 

@@ -95,6 +95,11 @@ class QtLessModule:
         position: Optional[float],
         additional_payload: Optional[List[bytes]] = None,
     ) -> None:
+        """Move to an absolute position.
+
+        :param position: Deprecated, should be None and content transferred binary.
+        :param additional_payload: binary frames containing the position as PyMoDAQ `DataActuator`.
+        """
         pos = self.extract_pymodaq_object(position, additional_payload)
         print("move_abs", pos)
         self._fake_position = float(pos)
@@ -104,6 +109,11 @@ class QtLessModule:
         position: Optional[float],
         additional_payload: Optional[List[bytes]] = None,
     ) -> None:
+        """Move by a relative position.
+
+        :param position: Deprecated, should be None and content transferred binary.
+        :param additional_payload: binary frames containing the position as PyMoDAQ `DataActuator`.
+        """
         pos = self.extract_pymodaq_object(position, additional_payload)
         print("move_rel", pos)
         self._fake_position += float(pos)
