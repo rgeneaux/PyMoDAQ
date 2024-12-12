@@ -18,6 +18,8 @@ from pymodaq_utils.warnings import deprecation_msg
 from pymodaq_utils.serialize.mysocket import Socket
 from pymodaq_utils.serialize.serializer_legacy import DeSerializer, Serializer
 
+from pymodaq_gui.utils import set_dark_palette
+
 comon_parameters = [{'title': 'Controller Status:', 'name': 'controller_status', 'type': 'list', 'value': 'Master',
                      'limits': ['Master', 'Slave']}, ]
 
@@ -106,8 +108,7 @@ def main(plugin_file=None, init=True, title='Testing'):
 
     app = QtWidgets.QApplication(sys.argv)
     if config('style', 'darkstyle'):
-        import qdarkstyle
-        app.setStyleSheet(qdarkstyle.load_stylesheet())
+        set_dark_palette(app)
 
     win = QtWidgets.QMainWindow()
     area = DockArea()
