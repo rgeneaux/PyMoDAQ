@@ -42,7 +42,7 @@ class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
     controller: ActuatorDirector
 
     params_client = []  # parameters of a client grabber
-    data_actuator_type = DataActuatorType['DataActuator']
+    data_actuator_type = DataActuatorType.DataActuator
 
     message_list = LECODirector.message_list + ["move_abs", 'move_home', 'move_rel',
                                                 'get_actuator_value', 'stop_motion', 'position_is',
