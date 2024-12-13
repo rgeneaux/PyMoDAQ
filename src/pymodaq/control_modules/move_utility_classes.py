@@ -622,6 +622,10 @@ class DAQ_Move_base(QObject):
         else:
             raise NotImplementedError
 
+
+    def close(self):
+        raise NotImplementedError
+
     def move_abs(self, value: Union[float, DataActuator]):
         if hasattr(self, 'move_Abs'):
             deprecation_msg('move_Abs method in plugins is deprecated, use move_abs', 3)
