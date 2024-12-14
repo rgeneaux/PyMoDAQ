@@ -42,7 +42,7 @@ from pymodaq_gui.parameter import utils as putils
 from pymodaq.control_modules.viewer_utility_classes import params as daq_viewer_params
 from pymodaq_utils import utils
 from pymodaq_utils.warnings import deprecation_msg
-from pymodaq_gui.utils import DockArea, Dock
+from pymodaq_gui.utils import DockArea, Dock, set_dark_palette
 
 from pymodaq.utils.gui_utils import get_splash_sc
 from pymodaq.control_modules.daq_viewer_ui import DAQ_Viewer_UI
@@ -1461,8 +1461,7 @@ def main(init_qt=True, init_det=False):
     if init_qt:  # used for the test suite
         app = QtWidgets.QApplication(sys.argv)
         if config('style', 'darkstyle'):
-            import qdarkstyle
-            app.setStyleSheet(qdarkstyle.load_stylesheet(qdarkstyle.DarkPalette))
+            set_dark_palette(app)
 
     win = QtWidgets.QMainWindow()
     area = DockArea()
