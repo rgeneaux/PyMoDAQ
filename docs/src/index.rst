@@ -31,7 +31,7 @@ Next training sessions
 
 Training sessions and gathering of the community are organized every year.
 
-.. figure:: /image/Flyer_PyMoDAQ.png
+.. figure:: /image/flyer_pymodaq.png
    :alt: Flyer_femto
 
    Training sessions announcement and PyMoDAQ's days
