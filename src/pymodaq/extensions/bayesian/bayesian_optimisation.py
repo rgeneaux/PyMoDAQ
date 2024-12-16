@@ -17,7 +17,8 @@ from pymodaq_utils.logger import set_logger, get_module_name
 
 from pymodaq_gui.plotting.data_viewers.viewer0D import Viewer0D
 from pymodaq_gui.plotting.data_viewers.viewer import ViewerDispatcher, ViewersEnum
-from pymodaq_gui.utils import QLED, set_dark_palette
+from pymodaq_gui.utils import QLED
+from pymodaq_gui.utils.utils import mkQApp
 from pymodaq_gui import utils as gutils
 from pymodaq_gui.parameter import utils as putils
 from pymodaq_gui.h5modules.saving import H5Saver
@@ -650,9 +651,7 @@ def main(init_qt=True):
     from pymodaq.utils.daq_utils import get_set_preset_path
 
     if init_qt:  # used for the test suite
-        app = QtWidgets.QApplication(sys.argv)
-        if config('style', 'darkstyle'):
-            set_dark_palette(app)
+        app = mkQApp("PyMoDAQ Dashboard")
 
     from pymodaq.dashboard import DashBoard
 
@@ -660,7 +659,6 @@ def main(init_qt=True):
     area = gutils.dock.DockArea()
     win.setCentralWidget(area)
     win.resize(1000, 500)
-    win.setWindowTitle('PyMoDAQ Dashboard')
 
     dashboard = DashBoard(area)
     daq_scan = None

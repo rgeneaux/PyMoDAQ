@@ -42,7 +42,8 @@ from pymodaq_gui.parameter import utils as putils
 from pymodaq.control_modules.viewer_utility_classes import params as daq_viewer_params
 from pymodaq_utils import utils
 from pymodaq_utils.warnings import deprecation_msg
-from pymodaq_gui.utils import DockArea, Dock, set_dark_palette
+from pymodaq_gui.utils import DockArea, Dock
+from pymodaq_gui.utils.utils import mkQApp
 
 from pymodaq.utils.gui_utils import get_splash_sc
 from pymodaq.control_modules.daq_viewer_ui import DAQ_Viewer_UI
@@ -1459,15 +1460,12 @@ def main(init_qt=True, init_det=False):
     """ Method called to start the DAQ_Viewer in standalone mode"""
 
     if init_qt:  # used for the test suite
-        app = QtWidgets.QApplication(sys.argv)
-        if config('style', 'darkstyle'):
-            set_dark_palette(app)
+        app = mkQApp("PyMoDAQ Viewer")
 
     win = QtWidgets.QMainWindow()
     area = DockArea()
     win.setCentralWidget(area)
     win.resize(1000, 500)
-    win.setWindowTitle('PyMoDAQ Viewer')
     win.show()
 
     title = "Testing"

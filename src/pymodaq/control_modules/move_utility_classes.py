@@ -19,7 +19,7 @@ from pymodaq_utils.logger import set_logger, get_module_name
 import pymodaq_gui.parameter.utils as putils
 from pymodaq_gui.parameter import Parameter
 from pymodaq_gui.parameter import ioxml
-from pymodaq_gui.utils import set_dark_palette
+from pymodaq_gui.utils.utils import mkQApp
 
 from pymodaq.utils.tcp_ip.tcp_server_client import TCPServer, tcp_parameters
 
@@ -212,9 +212,7 @@ def main(plugin_file, init=True, title='test'):
     from qtpy import QtWidgets
     from pymodaq.control_modules.daq_move import DAQ_Move
     from pathlib import Path
-    app = QtWidgets.QApplication(sys.argv)
-    if config('style', 'darkstyle'):
-        set_dark_palette(app)
+    app = mkQApp("PyMoDAQ Viewer")
 
     widget = QtWidgets.QWidget()
     prog = DAQ_Move(widget, title=title,)
