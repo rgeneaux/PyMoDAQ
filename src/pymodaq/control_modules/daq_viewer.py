@@ -390,7 +390,7 @@ class DAQ_Viewer(ParameterControlModule):
             return self._viewers
 
     @viewers.setter
-    def viewers(self, viewers):
+    def viewers(self, viewers: List[ViewerBase]):
         for viewer in self._viewers:
             try:
                 viewer.data_to_export_signal.disconnect()
@@ -406,6 +406,11 @@ class DAQ_Viewer(ParameterControlModule):
                 lambda roi_info: self.command_hardware.emit(
                     ThreadCommand('roi_select',
                                   dict(roi_info=roi_info, ind_viewer=ind_viewer))))
+            viewer.crosshair_dragged.connect(
+                lambda crosshair_info: self.command_hardware.emit(
+                    ThreadCommand('crosshair',
+                                  dict(crosshair_info=crosshair_info, ind_viewer=ind_viewer))))
+
 
         self._viewers = viewers
 
