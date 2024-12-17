@@ -1,4 +1,5 @@
 from pymodaq_gui.parameter import Parameter, ParameterTree, utils, ioxml, pymodaq_ptypes
+from pymodaq_gui.parameter.pymodaq_ptypes import registerParameterType, GroupParameter
 
 from pymodaq_utils.warnings import deprecation_msg
 
