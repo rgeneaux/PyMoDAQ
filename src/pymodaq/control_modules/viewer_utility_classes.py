@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Iterable
 from qtpy import QtWidgets
 from qtpy.QtCore import QObject, Slot, Signal
 
@@ -17,6 +17,7 @@ from pymodaq_data.data import DataToExport, DataRaw
 from pymodaq_utils.warnings import deprecation_msg
 from pymodaq_utils.serialize.mysocket import Socket
 from pymodaq_utils.serialize.serializer_legacy import DeSerializer, Serializer
+from pymodaq_gui.plotting.utils.plot_utils import RoiInfo
 
 from pymodaq_gui.utils import set_dark_palette
 
@@ -295,6 +296,33 @@ class DAQ_Viewer_base(QObject):
     def commit_settings(self, param):
         """
         To be reimplemented in subclass
+        """
+        pass
+
+    def roi_select(self, roi_info: RoiInfo, ind_viewer: int = 0):
+        """ Every time a ROISelect is updated on a 2D Viewer,
+        this method receive the corresponding info
+
+        To be subclassed in a plugin to use the info
+
+        Parameters
+        ----------
+        roi_info: RoiInfo
+        ind_viewer: int
+            The index of the viewer (if multiple) in which the roi is declared
+        """
+        pass
+
+    def crosshair(self, crosshair_info: Iterable[float], ind_viewer: int = 0):
+        """ Every time a crosshair is updated, this method receive the corresponding info
+
+        To be subclassed in a plugin to use the info
+
+        Parameters
+        ----------
+        crosshair_info: list of float
+        ind_viewer: int
+            The index of the viewer (if multiple) in which the crosshair is declared
         """
         pass
 
