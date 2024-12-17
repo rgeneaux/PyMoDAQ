@@ -32,7 +32,7 @@ from pymodaq_data.h5modules.backends import Node
 
 from pymodaq_gui.parameter import ioxml, Parameter
 from pymodaq_gui.parameter import utils as putils
-from pymodaq_gui.utils import set_dark_palette
+from pymodaq_gui.utils.utils import mkQApp
 
 from pymodaq.utils.h5modules import module_saving
 from pymodaq.control_modules.utils import ParameterControlModule
@@ -954,9 +954,7 @@ class DAQ_Move_Hardware(QObject):
 
 def main(init_qt=True):
     if init_qt:  # used for the test suite
-        app = QtWidgets.QApplication(sys.argv)
-        if config('style', 'darkstyle'):
-            set_dark_palette(app)
+        app = mkQApp("PyMoDAQ Move")
 
     widget = QtWidgets.QWidget()
     prog = DAQ_Move(widget, title="test")

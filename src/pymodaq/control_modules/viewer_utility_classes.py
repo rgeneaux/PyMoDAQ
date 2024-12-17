@@ -19,7 +19,7 @@ from pymodaq_utils.serialize.mysocket import Socket
 from pymodaq_utils.serialize.serializer_legacy import DeSerializer, Serializer
 from pymodaq_gui.plotting.utils.plot_utils import RoiInfo
 
-from pymodaq_gui.utils import set_dark_palette
+from pymodaq_gui.utils.utils import mkQApp
 
 comon_parameters = [{'title': 'Controller Status:', 'name': 'controller_status', 'type': 'list', 'value': 'Master',
                      'limits': ['Master', 'Slave']}, ]
@@ -107,9 +107,7 @@ def main(plugin_file=None, init=True, title='Testing'):
     from pymodaq.control_modules.daq_viewer import DAQ_Viewer
     from pathlib import Path
 
-    app = QtWidgets.QApplication(sys.argv)
-    if config('style', 'darkstyle'):
-        set_dark_palette(app)
+    app = mkQApp("PyMoDAQ Viewer")
 
     win = QtWidgets.QMainWindow()
     area = DockArea()
