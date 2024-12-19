@@ -21,8 +21,12 @@ from pymodaq_gui.plotting.utils.plot_utils import RoiInfo
 
 from pymodaq_gui.utils.utils import mkQApp
 
-comon_parameters = [{'title': 'Controller Status:', 'name': 'controller_status', 'type': 'list', 'value': 'Master',
-                     'limits': ['Master', 'Slave']}, ]
+comon_parameters = [{'title': 'Controller Status:', 'name': 'controller_status', 'type': 'list',
+                     'value': 'Master',
+                     'limits': ['Master', 'Slave']},
+                    {'title': 'Controller ID:', 'name': 'controller_ID', 'type': 'int', 'value': 0,
+                     'default': 0, 'readonly': False},
+                    ]
 
 local_path = get_set_local_dir()
 # look for eventual calibration files
@@ -42,7 +46,7 @@ params = [
         {'title': 'Detector type:', 'name': 'detector_type', 'type': 'str', 'value': '', 'readonly': True},
         {'title': 'Detector Name:', 'name': 'module_name', 'type': 'str', 'value': '', 'readonly': True},
         {'title': 'Plugin Config:', 'name': 'plugin_config', 'type': 'bool_push', 'label': 'Show Config', },
-        {'title': 'Controller ID:', 'name': 'controller_ID', 'type': 'int', 'value': 0, 'default': 0, 'readonly': False},
+
         {'title': 'Show data and process:', 'name': 'show_data', 'type': 'bool', 'value': True, },
         {'title': 'Refresh time (ms):', 'name': 'refresh_time', 'type': 'float', 'value': 50., 'min': 0.},
         {'title': 'Naverage', 'name': 'Naverage', 'type': 'int', 'default': 1, 'value': 1, 'min': 1},
