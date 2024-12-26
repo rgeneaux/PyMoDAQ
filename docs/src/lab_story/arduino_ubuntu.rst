@@ -29,6 +29,8 @@ Prerequisite
 
 ???????????????????????????'
 
+* :ref:`The installation instructions of PyMoDAQ <quick_start>`
+
 * :ref:`Story of an instrument plugin development <plugin_development>`
 * :ref:`How to modify existing PyMoDAQ's code? <contribute_to_pymodaq_code>`
 * :ref:`Write and release a new plugin <new_plugin>`
@@ -151,6 +153,9 @@ environment.
 Install the *Telemetrix4Arduino* server
 +++++++++++++++++++++++++++++++++++++++
 
+We will follow the
+`installation instructions <https://mryslab.github.io/telemetrix/telemetrix4arduino/>`_ of the server.
+
 We first need to install the Arduino library *Telemetrix4Arduino*. Let's go to the library manager of the Arduino IDE,
 search "Telelmetrix" and install *Telemetrix4Arduino*.
 
@@ -181,18 +186,29 @@ example script called
 available
 in the examples of the library.
 
-Let's download and run it in our *arduino_ubuntu* environment:
+Let's download it. We will make the following modifications of the file:
 
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_pyfirmata_script.png
+* line 35: *ANALOG_PIN = 0*. Because we are reading the A0 analog input pin of the board.
+* line 70: *my_board.set_pin_mode_analog_input(pin, 0, the_callback)*. As is written in the comments above, the second
+  parameter of the function *set_pin_mode_analog_input* check the differential values output. We put it to zero so that
+  we have a regular output in time.
+* line 71: *my_board.set_analog_scan_interval(255)*. It decreases the output frequency.
 
-   Output of the *print_analog_data.py* script. We just changed the line 22 of the script to *self.samplingRate = 1*
-   in order to get one reading per second, rather than 10 per second.
+Let's save it, and run it in our *arduino_ubuntu* environment:
 
-The number in the left column is the acquisition time, and the number in the right one is a float number proportional
-to the voltage, itself proportional to the temperature.
+.. figure:: /image/lab_story/arduino_ubuntu/arduino_ubuntu_telemetrix_script.png
 
-We can check that if we unplug the pin A0, the output will be 0, and if we put the 5V from the Arduino directly on A0,
-it outputs 1. To get the corresponding voltage, we thus use the following formula: *voltage = 5 x output*. To get the
+   Output of the *analog_input_scan_interval.py* script. We saved the script in a directory
+   *~/Code/arduino_ubuntu_telemetrix*, but it could have been saved anywhere else.
+
+????????
+
+If we plug directly the - pin (0 Volt) of the board to the A0 pin, it indicates a value of 0. If we plug directly the +
+pin of the board (+ 5 Volt), it indicates a value of 1023. The analog to digital converter (ADC) of the board should
+use 10 bits (2¹⁰ = 1024) to digitalize the input voltage. Therefore the conversion formula to get the voltage should be
+*voltage = 5 x value / 1023*.
+
+To get the
 reading in Celsius degree, we follow the procedure detailed in the Arduino projects book. In the end, we rewrite a bit
 the *myPrintCallback* method as follow to get the temperature
 
