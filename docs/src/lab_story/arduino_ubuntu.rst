@@ -5,9 +5,9 @@
 +------------------------------------+---------------------------------------+
 | PyMoDAQ version                    | 4.4                                   |
 +------------------------------------+---------------------------------------+
-| Operating system                   | Xubuntu 22.04                         |
+| Operating system                   | Ubuntu 24.04                          |
 +------------------------------------+---------------------------------------+
-| Last update                        | november 2024                         |
+| Last update                        | January 2025                          |
 +------------------------------------+---------------------------------------+
 | Difficulty                         | Intermediate                          |
 +------------------------------------+---------------------------------------+
@@ -15,7 +15,7 @@
 Read an Arduino on Ubuntu
 =========================
 
-In this example of use, we will present how to read an analogue output of an Arduino board with
+In this example of use, we will present how to read an analogue input of an Arduino board with
 PyMoDAQ installed on Ubuntu.
 
 This example may be among the cheapest ways to test PyMoDAQ with an actual detector, as the only expenses are an
@@ -27,12 +27,18 @@ use of an operating system based on Linux.
 Prerequisite
 ------------
 
+???????????????????????????'
+
 * :ref:`Story of an instrument plugin development <plugin_development>`
 * :ref:`How to modify existing PyMoDAQ's code? <contribute_to_pymodaq_code>`
 * :ref:`Write and release a new plugin <new_plugin>`
 
 What we will learn
 ------------------
+
+??????????????????????????
+
+??????????
 
 * Communicate with an Arduino board with Python
 * Managing USB devices with Ubuntu
@@ -135,40 +141,44 @@ Read the board with Python
 
 As we already noticed, the Arduino sketches are not natively written in Python. We will first have to make the
 translation thanks to a
-library called `pyFirmata2 <https://github.com/berndporr/pyFirmata2>`_, so that we can talk to the board with Python.
+library called `Telemetrix <https://github.com/MrYsLab/telemetrix>`_, so that we can talk to the board with Python.
 
 The communication is done in a client-server architecture: the server is the Arduino board, the client is our computer.
-The installation of pyFirmata2 then goes into two steps: the upload of the *Standard Firmata* server to the board,
-which is done like any other sketch. And secondly, the installation of the Python package *pyfirmata2* in our
+The installation of Telemetrix then goes into two steps: the upload of the *Telemetrix4Arduino* server to the board,
+which is done like any other sketch. And secondly, the installation of the Python package *telemetrix* in our
 environment.
 
-Install the *Firmata standard* server
-+++++++++++++++++++++++++++++++++++++
+Install the *Telemetrix4Arduino* server
++++++++++++++++++++++++++++++++++++++++
 
-We just need to upload a sketch that is already available through the Arduino IDE. So let's start it, and go to
-*File > Examples > Firmata > StandardFirmata*. It will open a sketch that we have to upload to the board. That's it!
+We first need to install the Arduino library *Telemetrix4Arduino*. Let's go to the library manager of the Arduino IDE,
+search "Telelmetrix" and install *Telemetrix4Arduino*.
+
+Secondly, we need to upload a sketch. Still on the Arduino IDE, go to
+*File > Examples > Telemetrix4Arduino > Telemetrix4Arduino* and upload the sketch to the board. That's it!
 
 .. note::
    It happens while writing this tutorial that the board was giving a good temperature with the Arduino IDE, but output
-   crazy values while using a Python script. In that case, it may be useful to upload again the Firmata server to the
-   board.
+   crazy values while using a Python script. In that case, it may be useful to upload again the Telemetrix4Arduino
+   server to the board.
 
-Install the pyfirmata2 Python package
+Install the telemetrix Python package
 +++++++++++++++++++++++++++++++++++++
 
 We suppose that we already installed Python, created and activated an environment called *arduino_ubuntu* by following
 :ref:`the installation instructions <quick_start>`.
 
-We install *pyfirmata2* with *pip* in a terminal:
+We install *telemetrix* with *pip* in a terminal:
 
-``(arduino_ubuntu) pip install pyfirmata2``
+``(arduino_ubuntu) pip install telemetrix``
 
 Read the temperature with a Python script
 +++++++++++++++++++++++++++++++++++++++++
 
 We are now ready to read the temperature with a Python script! We will not start from scratch but rather use the
 example script called
-`print_analog_data.py <https://github.com/berndporr/pyFirmata2/blob/master/examples/print_analog_data.py>`_ available
+`analog_input_scan_interval.py <https://github.com/MrYsLab/telemetrix/blob/master/examples/analog_input_scan_interval.py>`_
+available
 in the examples of the library.
 
 Let's download and run it in our *arduino_ubuntu* environment:
