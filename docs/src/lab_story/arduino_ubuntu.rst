@@ -201,67 +201,35 @@ Let's save it, and run it in our *arduino_ubuntu* environment:
    Output of the *analog_input_scan_interval.py* script. We saved the script in a directory
    *~/Code/arduino_ubuntu_telemetrix*, but it could have been saved anywhere else.
 
-????????
-
 If we plug directly the - pin (0 Volt) of the board to the A0 pin, it indicates a value of 0. If we plug directly the +
 pin of the board (+ 5 Volt), it indicates a value of 1023. The analog to digital converter (ADC) of the board should
 use 10 bits (2¹⁰ = 1024) to digitalize the input voltage. Therefore the conversion formula to get the voltage should be
-*voltage = 5 x value / 1023*.
+*voltage[mV] = 5000/1023 x value*.
 
-To get the
-reading in Celsius degree, we follow the procedure detailed in the Arduino projects book. In the end, we rewrite a bit
-the *myPrintCallback* method as follow to get the temperature
+Following the instructions detailed in the Arduino projects book, we get from the documentation of the TMP chip, that
+the formula to convert the output voltage into a temperature is *temperature[°C] = (voltage[mV] - 500)/10 =
+500/1023 x value - 50*.
 
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_pyfirmata_callback.png
-
-   Modification of the *myPrintCallback* method to get the output in Celsius degree.
+To get the reading in Celsius degree, we have to replace in the method *the_callback*, in the *print* function
+*Value: {data[CB_VALUE]}* by *Value: {500*data[CB_VALUE]/1023 - 50}*.
 
 We now get the output in Celsius degree!
 
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_pyfirmata_script_celsius.png
+.. figure:: /image/lab_story/arduino_ubuntu/telemetrix_script_celsius_degree.png
 
-   Output of the modified script. The raise in temperature happened when we put a finger on the TMP chip.
+   Output of the modified script in Celsius degree.
 
 Read the board with PyMoDAQ
 ---------------------------
 
-Everything is now in our hands, we already know how to initiate the communication with the board, how to read its
-outputs,
-and how to close the communication with Python commands. This is all in the
-pyFirmata2 example.
-We will now put those commands in the proper methods of a PyMoDAQ instrument :term:`plugin`, the following table gives
-an overview of the analogies between the
-`print_analog_data.py <https://github.com/berndporr/pyFirmata2/blob/master/examples/print_analog_data.py>`_ file and
-the
-`daq_0Dviewer_ArduinoUbuntu.py <https://github.com/quantumm/pymodaq_plugins_arduino_ubuntu/blob/main/src/pymodaq_plugins_arduino_ubuntu/daq_viewer_plugins/plugins_0D/daq_0Dviewer_ArduinoUbuntu.py>`_
-file. We'll explain how we arrived at this result below.
+Let's have a look at the
+`list of instruments readily supported <https://github.com/PyMoDAQ/pymodaq_plugin_manager/blob/main/README.md>`_.
+We are lucky, the Arduino :ref:`plugin <plugin>` already exists!
 
-+------------------------------------+---------------------------------------+
-| **print_analog_data.py**           | **daq_0Dviewer_ArduinoUbuntu.py**     |
-+------------------------------------+---------------------------------------+
-| PORT                               | PORT                                  |
-+------------------------------------+---------------------------------------+
-| AnalogPrinter                      | DAQ_0DViewer_ArduinoUbuntu            |
-+------------------------------------+---------------------------------------+
-| self.board                         | self.controller                       |
-+------------------------------------+---------------------------------------+
-| __init__                           | ini_detector                          |
-+------------------------------------+---------------------------------------+
-| start                              | grab_data                             |
-+------------------------------------+---------------------------------------+
-| myPrintCallback                    | callback                              |
-+------------------------------------+---------------------------------------+
+.. figure:: /image/lab_story/arduino_ubuntu/list_supported_instruments.png
 
-Install PyMoDAQ and create a new instrument plugin
-++++++++++++++++++++++++++++++++++++++++++++++++++
-
-.. note::
-   The most straightforward way to read the board with PyMoDAQ could have been to install the
-   `pymodaq_plugins_arduino <https://github.com/PyMoDAQ/pymodaq_plugins_arduino>`_ which already implements a 0D viewer
-   to
-   read the analogue outputs. However, at the time of writing the compatibility with Ubuntu is not guaranteed. This is
-   thus
-   left for further work.
+Install PyMoDAQ and the Arduino plugin
+++++++++++++++++++++++++++++++++++++++
 
 Let's start by installing PyMoDAQ in our environment
 
@@ -270,36 +238,14 @@ Let's start by installing PyMoDAQ in our environment
 .. note::
    Version 4.4 at the time of writing.
 
-* We start from the
-  `pymodaq_plugins_template <https://github.com/PyMoDAQ/pymodaq_plugins_template>`_.
-* We fork it on our remote repository with the name *pymodaq_plugins_arduino_ubuntu*.
-* We clone it locally, for example with PyCharm (*File > Project from version control...* and enter the URL of our remote
-  repository, see :ref:`How to modify existing PyMoDAQ's code? <contribute_to_pymodaq_code>`).
-* We make an `editable install <https://setuptools.pypa.io/en/latest/userguide/development_mode.html>`_ in our
-  environment with the following command:
+And install the Arduino plugin
 
-``(arduino_ubuntu) $ pip install -e ~/PycharmProjects/pymodaq_plugins_arduino_ubuntu``
+``(arduino_ubuntu) $ pip install pymodaq_plugins_arduino``
 
-.. note::
-   PyCharm will clone the repository in the ~/PycharmProjects directory.
+Configure the viewer and launch the acquisition
++++++++++++++++++++++++++++++++++++++++++++++++
 
-Details about this procedure can be found in the tutorial :ref:`Write and release a new plugin <new_plugin>`.
-
-What we want to read at each acquisition, the temperature, is a scalar, its dimensionality is 0. We must
-therefore consider a OD viewer.
-
-.. note::
-   A camera for example, which would output a matrix of pixels at each acquisition, would be a 2D viewer.
-
-We then have a series of renaming to do, as indicated in the following figure.
-
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_plugin_arborescence.png
-
-   Tree structure of our plugin. We have to be careful about the naming conventions of the files, folders, and class that
-   are in red rectangles, even the case is sensitive.
-
-If those naming conventions have been respected, then PyMoDAQ will detect our plugin. This can be easily tested by
-running a :ref:`DAQ_Viewer module <DAQ_Viewer_module>` with the following command in our activated environment:
+Let's launch a :ref:`viewer <DAQ_viewer>`
 
 ``(arduino_ubuntu) $ daq_viewer``
 
