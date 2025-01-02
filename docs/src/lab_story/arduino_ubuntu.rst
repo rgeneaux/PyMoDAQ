@@ -249,92 +249,26 @@ Let's launch a :ref:`viewer <DAQ_viewer>`
 
 ``(arduino_ubuntu) $ daq_viewer``
 
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_daq_viewer.png
+and follow the sequence:
 
-   By running a DAQ_Viewer, we check that our plugin is recognized by PyMoDAQ.
+1. Open the control menu
+2. Open the settings menu
+3. Select *DAQ0D*
+4. Select *Analog* as the detector
+5. Select the port *ASRL/dev/ttyACM0::INSTR*
+6. Activate the analog input channel *AI0*
+7. Initialize the detector
+8. Launch the acquisition
 
-Let's close this window after this check.
+.. figure:: /image/lab_story/arduino_ubuntu/telemetrix_viewer.svg
 
-Initialization
-++++++++++++++
-
-We now have to implement the initialization of the communication.
-
-The method *ini_detector* will be triggered when we click the
-*Init. Detector* button. The corresponding method in the pyFirmata2 example is *__init__*.
-
-First, we should import the *Arduino* object which establishes the bridge between our code and the acquisition card.
-
-Secondly, we should get the name of the communication port opened with the board. This is done with the instruction
-*PORT = Arduino.AUTODETECT*.
-
-.. note::
-   It seems important to put this instruction outside of the class.
-
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_initialize_plugin.png
-
-   Imports statements of the plugin.
-
-We then modify the method *ini_detector* of our plugin class to put into *self.controller* the object that allows the
-communication with the board, which is here *Arduino(PORT)*.
-
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_ini_detector_method.png
-
-   Minimal definition (without comments) of our *ini_detector* method, that will be triggered when the user click
-   the *Init. detector* button.
-
-A few attributes are also set in the *ini_attributes* method.
-
-Running again a DAQ_Viewer and clicking the *Init. detector* button makes the LED turns green, we can proceed further!
-
-.. note::
-   Think about closing the window again.
-
-Acquisition
-+++++++++++
-
-Let's now consider the acquisition. When the user will hit the *Play* button of the DAQ_Viewer interface, it will
-trigger the *grab_data* method. Here again, we have to find inspiration from the pyFirmata2 example.
-
-In this specific example, the acquisition is done with two methods: a main one (*start*), and a *callback* one
-(*myPrintCallback*). This is specific
-to pyFirmata2, which implements
-`asynchronous <https://www.geeksforgeeks.org/synchronous-and-asynchronous-programming/>`_
-methods to communicate with the board. In another context, this could be
-useful if we would like our code to do something else in the dead times in between two calls of the board. We will not
-enter into explaining what is asynchronicity here. The point is that it is easy to implement with PyMoDAQ: in the
-*grab_data* method, we must choose the asynchronous way, and define a *callback* method, as we are invited to do in the
-plugin template.
-
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_pymodaq_template.png
-
-   The *grab_data* and *callback* methods from the *pymodaq_plugins_template*.
-
-We end up with this implementation:
-
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_implement_grab.png
-
-   The implementation of the acquisition in our plugin.
-
-Let's run a DAQ_Viewer again!
-
-.. figure:: /image/lab_story/arduino_ubuntu/arduino_it_works.png
-
-   Reading of the temperature from the board with PyMoDAQ.
+   Acquisition of the *AI0* analog input channel of the Arduino board. The raise in temperature happened after we
+   pressed the TMP sensor with our fingers.
 
 It works! :D
 
 Conclusion
 ----------
-
-This plugin is not well polished as it is. In particular, one should implement the *close* method of the plugin to
-close the communication properly.
-
-We can directly install this example from source with the command
-
-``(arduino_ubuntu) $ pip install git+https://github.com/quantumm/pymodaq_plugins_arduino_ubuntu.git``
-
-Hope you enjoyed it ;)
 
 .. figure:: /image/lab_story/arduino_ubuntu/arduino_the_laughing_cow.jpg
 
