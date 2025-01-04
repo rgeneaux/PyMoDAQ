@@ -12,10 +12,10 @@
 | Difficulty                         | Intermediate                          |
 +------------------------------------+---------------------------------------+
 
-Read an Arduino on Ubuntu
-=========================
+Read voltages on Ubuntu with Arduino
+====================================
 
-In this example of use, we will present how to read an analogue input of an Arduino board with
+In this example of use, we will present how to read an analog input of an Arduino board with
 PyMoDAQ installed on Ubuntu.
 
 This example may be among the cheapest ways to test PyMoDAQ with an actual detector, as the only expenses are an
@@ -27,24 +27,16 @@ use of an operating system based on Linux.
 Prerequisite
 ------------
 
-???????????????????????????'
-
 * :ref:`The installation instructions of PyMoDAQ <quick_start>`
-
-* :ref:`Story of an instrument plugin development <plugin_development>`
 * :ref:`How to modify existing PyMoDAQ's code? <contribute_to_pymodaq_code>`
-* :ref:`Write and release a new plugin <new_plugin>`
 
 What we will learn
 ------------------
 
-??????????????????????????
-
-??????????
-
-* Communicate with an Arduino board with Python
-* Managing USB devices with Ubuntu
-* Using a callback method for acquisition
+* Run an AppImage file
+* Manage USB ports with Ubuntu
+* Communicate with an Arduino board with Python and PyMoDAQ
+* Modify an existing plugin to make it suits our particular needs
 
 Install the Arduino IDE 2
 -------------------------
@@ -171,9 +163,10 @@ Install the telemetrix Python package
 +++++++++++++++++++++++++++++++++++++
 
 We suppose that we already installed Python, created and activated an environment called *arduino_ubuntu* by following
-:ref:`the installation instructions <quick_start>`.
+:ref:`the installation instructions <quick_start>`. Be careful to follow the
+:ref:`the specific instructions for Ubuntu <installation_tips>`.
 
-We install *telemetrix* with *pip* in a terminal:
+We install *telemetrix* in our environment with *pip* in a terminal:
 
 ``(arduino_ubuntu) pip install telemetrix``
 
@@ -186,7 +179,8 @@ example script called
 available
 in the examples of the library.
 
-Let's download it. We will make the following modifications of the file:
+Let's download it, and open it with an editor.
+We will make the following modifications of the file:
 
 * line 35: *ANALOG_PIN = 0*. Because we are reading the A0 analog input pin of the board.
 * line 70: *my_board.set_pin_mode_analog_input(pin, 0, the_callback)*. As is written in the comments above, the second
@@ -207,8 +201,9 @@ use 10 bits (2¹⁰ = 1024) to digitalize the input voltage. Therefore the conve
 *voltage[mV] = 5000/1023 x value*.
 
 Following the instructions detailed in the Arduino projects book, we get from the documentation of the TMP chip, that
-the formula to convert the output voltage into a temperature is *temperature[°C] = (voltage[mV] - 500)/10 =
-500/1023 x value - 50*.
+the formula to convert the output voltage into a temperature is
+
+*temperature[°C] = (voltage[mV] - 500)/10 = 500/1023 x value - 50*.
 
 To get the reading in Celsius degree, we have to replace in the method *the_callback*, in the *print* function
 *Value: {data[CB_VALUE]}* by *Value: {500*data[CB_VALUE]/1023 - 50}*.
@@ -222,8 +217,10 @@ We now get the output in Celsius degree!
 Read the board with PyMoDAQ
 ---------------------------
 
+Now that we know how to read the temperature with a Python script, we are close to be able to read it with Pymodaq.
+
 Let's have a look at the
-`list of instruments readily supported <https://github.com/PyMoDAQ/pymodaq_plugin_manager/blob/main/README.md>`_.
+`list of readily supported instruments <https://github.com/PyMoDAQ/pymodaq_plugin_manager/blob/main/README.md>`_.
 We are lucky, the Arduino :ref:`plugin <plugin>` already exists!
 
 .. figure:: /image/lab_story/arduino_ubuntu/list_supported_instruments.png
@@ -267,8 +264,66 @@ and follow the sequence:
 
 It works! :D
 
+Get the reading as a temperature in Celsius degree: modify an existing PyMoDAQ plugin
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+We notice that for now, the reading of the viewer is not in Celsius degree. To do so, we will have to adapt the
+existing Arduino plugin to our need and modify its code. This section is therefore a bit more advanced and requires
+that we have a GitHub account and know how to :ref:`modify a code hosted on GitHub <contribute_to_pymodaq_code>`.
+
+We use the following procedure:
+
+1. Fork the *pymodaq_plugins_arduino* repository in our GitHub account.
+2. Clone our remote repository to our local machine.
+3. Create and checkout to a new branch of the clone.
+4. Make an editable install in our *arduino_ubuntu* environment with the
+   *pip install -e <path to the root of the local repository>* command.
+
+Once all those steps are completed, we modify the code inside the *grab_data* method of the *DAQ_0DViewer_Analog* class,
+as in the following figure: the commented lines (172 and 173) are replaced by the above lines (170 and 171) to get the
+temperature from the raw value.
+
+.. figure:: /image/lab_story/arduino_ubuntu/telemetrix_plugin_modification.png
+
+   Modification of the Arduino plugin to get the temperature in Celsius degree.
+
+Here is the result:
+
+.. figure:: /image/lab_story/arduino_ubuntu/telemetrix_viewer_celsius_degree.png
+
+   The viewer now displays a value in Celsius degree!
+
+It works, we now have a reading in Celsius degree!
+Since we are happy with this modification, we commit and push it towards our remote repository.
+
+.. note::
+   The login to our GitHub account, which is necessary to push, is quite easy with the generation of a token, which is
+   directly proposed by PyCharm.
+
+An important point is that now our new version of the plugin can be installed very easily in any other environment
+on
+any other machine with the following command:
+
+``(any environment) $ pip install git+https://github.com/<GitHub account>/<repository name>.git@<branch name>``
+
+.. note::
+   This is called an installation *from source*, which means directly from the code on GitHub. As compared to the
+   installation of a release from PyPI.
+
+Using this procedure, we understand that **we can easily reuse any code that is stored on our GitHub
+account on any other machine**.
+
 Conclusion
 ----------
+
+With this example, we learnt the basic use of PyMoDAQ on Ubuntu.
+
+If we wish to control any other instrument on Ubuntu, let's be careful at the moment of purchasing the device that the
+supplier provides Linux compatible drivers. (If it can also provide an open-source Python wrapper that would be even
+better!)
+
+When the PyMoDAQ 5 version will be released, the last section of this story should be simplified thanks to the
+`data mixer extension <https://github.com/PyMoDAQ/pymodaq_plugins_datamixer>`_.
 
 .. figure:: /image/lab_story/arduino_ubuntu/arduino_the_laughing_cow.jpg
 
