@@ -19,6 +19,7 @@ from pymodaq_utils.logger import set_logger, get_module_name
 import pymodaq_gui.parameter.utils as putils
 from pymodaq_gui.parameter import Parameter
 from pymodaq_gui.parameter import ioxml
+from pymodaq_gui.utils.utils import mkQApp
 
 from pymodaq.utils.tcp_ip.tcp_server_client import TCPServer, tcp_parameters
 
@@ -28,8 +29,8 @@ from pymodaq.utils.messenger import deprecation_msg
 from pymodaq.utils.data import DataActuator
 from pymodaq_utils.enums import BaseEnum, enum_checker
 
-from pymodaq.utils.tcp_ip.mysocket import Socket
-from pymodaq.utils.tcp_ip.serializer import DeSerializer, Serializer
+from pymodaq_utils.serialize.mysocket import Socket
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer, Serializer
 from pymodaq import Unit
 from pint.errors import OffsetUnitCalculusError
 
@@ -73,11 +74,11 @@ class DataActuatorType(BaseEnum):
 def comon_parameters(epsilon=config('actuator', 'epsilon_default'),
                      epsilons=None):
     if epsilons is not None:
-        epsilon=epsilons
+        epsilon = epsilons
     if isinstance(epsilon, list):
-        epsilon=epsilon[0]
+        epsilon = epsilon[0]
     elif isinstance(epsilon, dict):
-        epsilon=epsilon[list[epsilon.keys()][0]]
+        epsilon = epsilon[list[epsilon.keys()][0]]
 
     return [{'title': 'Units:', 'name': 'units', 'type': 'str', 'value': '', 'readonly': True},
             {'title': 'Epsilon:', 'name': 'epsilon', 'type': 'float',
@@ -130,7 +131,7 @@ def comon_parameters_fun(is_multiaxes=False, axes_names=None,
 
     Parameters
     ----------
-    is_multiaxes: bool  # deprecated not need anymore
+    is_multiaxes: bool
         If True, display the particular settings to define which axis the controller is driving
     axes_names: deprecated, use axis_names
     axis_names: list of str or dictionnary of string as key and integer as value
@@ -146,7 +147,7 @@ def comon_parameters_fun(is_multiaxes=False, axes_names=None,
             axes_names = ['']
         axis_names = axes_names
 
-    is_multiaxes = len(axis_names) > 1
+    is_multiaxes = len(axis_names) > 1 or is_multiaxes
     if isinstance(axis_names, list):
         if len(axis_names) > 0:
             axis_name = axis_names[0]
@@ -211,10 +212,7 @@ def main(plugin_file, init=True, title='test'):
     from qtpy import QtWidgets
     from pymodaq.control_modules.daq_move import DAQ_Move
     from pathlib import Path
-    app = QtWidgets.QApplication(sys.argv)
-    if config('style', 'darkstyle'):
-        import qdarkstyle
-        app.setStyleSheet(qdarkstyle.load_stylesheet())
+    app = mkQApp("PyMoDAQ Viewer")
 
     widget = QtWidgets.QWidget()
     prog = DAQ_Move(widget, title=title,)
@@ -621,6 +619,10 @@ class DAQ_Move_base(QObject):
             return self.check_position()
         else:
             raise NotImplementedError
+
+
+    def close(self):
+        raise NotImplementedError
 
     def move_abs(self, value: Union[float, DataActuator]):
         if hasattr(self, 'move_Abs'):

@@ -31,7 +31,7 @@ Next training sessions
 
 Training sessions and gathering of the community are organized every year.
 
-.. figure:: /image/Flyer_PyMoDAQ.png
+.. figure:: /image/flyer_pymodaq.png
    :alt: Flyer_femto
 
    Training sessions announcement and PyMoDAQ's days
@@ -116,11 +116,6 @@ If you would like to get updated with the evolutions of the project, please subs
    glossary
    api/api_doc
    about
-
-.. toctree::
-   :caption: Lab stories
-
-   lab_story/arduino_ubuntu
 
 .. toctree::
    :caption: Related projects
