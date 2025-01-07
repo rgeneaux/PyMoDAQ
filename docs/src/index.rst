@@ -37,8 +37,11 @@ Training sessions and gathering of the community are organized every year.
    Training sessions announcement and PyMoDAQ's days
 
 .. note::
-   * Third edition of the PyMoDAQ's Days: Lyon 20/22 October 2024. Register on https://pymodaq-days.sciencesconf.org
-   * Training session in Toulouse, France 17/19 June 2024
+   * Fourth edition of the PyMoDAQ's Days: Montpellier 8-10 October 2025.
+   * Training session in Gif sur Yvette, France, 3-7 march 2025, `CNRS Formation Entreprise`__
+   * Training session in Toulouse, France, 23-26 June 2025, Action Nationale de Formation CNRS
+
+__ https://cnrsformation.cnrs.fr/liste-stages-mc-PyMoDAq.html
 
 Overview
 --------
