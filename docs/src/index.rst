@@ -114,6 +114,7 @@ If you would like to get updated with the evolutions of the project, please subs
    quick_start
    user
    tutorials
+   lab_story
    data_management
    developer
    glossary
