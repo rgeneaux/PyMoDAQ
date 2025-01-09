@@ -22,12 +22,12 @@ you should fork and clone the up-to-date GitHub repo: https://github.com/PyMoDAQ
 using git command line or GitHub Desktop. Then create a dedicated branch name from the change you want to work on
 (using git).
 
-Finally I advise to create a dedicated conda environment for this and install PyMoDAQ's package as a developer:
+Finally it is advised to create a dedicated virtual environment for this and install PyMoDAQ's package as a developer. For example, using conda as an environment manager:
 
 * ``conda create -n dev_env``
 * ``conda activate dev_env``
 * ``cd`` to the location of the folder where you downloaded or cloned the repository.
-* install the package as a developer using the command ``pip install -e .``.
+* install the package as a developer with test tools using the command ``pip install -e ".[dev]"``.
 
 Then any change on the code will be *seen* by python interpreter so that you can see and test your modifications. Think about
 writing tests that will make sure your code is sound and that modification elsewhere doesn't change the expected behavior.
