@@ -221,7 +221,7 @@ Now that we know how to read the temperature with a Python script, we are close 
 
 Let's have a look at the
 `list of readily supported instruments <https://github.com/PyMoDAQ/pymodaq_plugin_manager/blob/main/README.md>`_.
-We are lucky, the Arduino :ref:`plugin <plugin>` already exists!
+We are lucky, the Arduino :ref:`plugin <plugins>` already exists!
 
 .. figure:: /image/lab_story/arduino_ubuntu/list_supported_instruments.png
 
@@ -242,7 +242,7 @@ And install the Arduino plugin
 Configure the viewer and launch the acquisition
 +++++++++++++++++++++++++++++++++++++++++++++++
 
-Let's launch a :ref:`viewer <DAQ_viewer>`
+Let's launch a :ref:`viewer <DAQ_Viewer_module>`
 
 ``(arduino_ubuntu) $ daq_viewer``
 
