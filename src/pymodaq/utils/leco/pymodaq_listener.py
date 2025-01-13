@@ -296,35 +296,6 @@ class ActorListener(PymodaqListener):
                                       **binary_serialization_to_kwargs(value, data_key="position"),
                                       )
 
-        elif command.command == 'x_axis':
-            value = command.attribute[0]  # type: ignore
-            if isinstance(value, dict):
-                self.communicator.ask_rpc(
-                    receiver=self.remote_name, method="set_x_axis", **value
-                )
-            else:
-                self.communicator.ask_rpc(
-                    receiver=self.remote_name,
-                    method="set_x_axis",
-                    **binary_serialization_to_kwargs(value),
-                )
-
-
-        elif command.command == 'y_axis':
-            value = command.attribute
-            if isinstance(value, (list, tuple)):
-                value = value[0]  # for backward compatibility with attributes list
-            if isinstance(value, dict):
-                self.communicator.ask_rpc(
-                    receiver=self.remote_name, method="set_y_axis", **value
-                )
-            else:
-                self.communicator.ask_rpc(
-                    receiver=self.remote_name,
-                    method="set_y_axis",
-                    **binary_serialization_to_kwargs(value),
-                )
-
         else:
             raise IOError('Unknown TCP client command')
 
