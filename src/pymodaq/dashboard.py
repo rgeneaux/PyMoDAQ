@@ -12,7 +12,8 @@ from typing import Tuple, List, Any, TYPE_CHECKING
 
 
 from qtpy import QtGui, QtWidgets, QtCore
-from qtpy.QtCore import Qt, QObject, Slot, QThread, Signal
+from qtpy.QtCore import Qt, QObject, Slot, QThread, Signal, QSize
+from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QCheckBox, QWidget, QHBoxLayout, QLabel, QDialogButtonBox, QDialog
 from time import perf_counter
 import numpy as np
 
@@ -71,6 +72,56 @@ class ManagerEnums(BaseEnum):
     overshoot = 2
     roi = 3
 
+class PymodaqUpdateTableWidget(QTableWidget):
+    def __init__(self):
+        super().__init__()
+
+        self._checkboxes = []
+        self._packages = []
+        self._available_versions = []
+
+    def setHorizontalHeaderLabels(self, labels):
+        super().setHorizontalHeaderLabels(labels)
+        self.setColumnCount(len(labels))
+        
+    def append_row(self, checkbox, package, current_version, available_version):  
+        row = len(self._checkboxes)
+
+        self._checkboxes.append(checkbox)
+        self._packages.append(package)
+        self._available_versions.append(available_version)
+
+        checkbox_widget = QWidget()
+                        
+        checkbox.setChecked(True)
+        checkbox.setToolTip("Check to install update")
+
+        checkbox_layout = QtWidgets.QHBoxLayout()                
+        checkbox_layout.addWidget(checkbox)
+        checkbox_layout.setAlignment(Qt.AlignCenter)
+        checkbox_layout.setContentsMargins(0, 0, 0, 0)
+
+        checkbox_widget.setLayout(checkbox_layout)
+
+        # Add the checkbox widget to the table
+        self.setCellWidget(row, 0, checkbox_widget)
+
+        # Add labels in the other columns
+        self.setItem(row, 1, QTableWidgetItem(str(package)))
+        self.setItem(row, 2, QTableWidgetItem(str(current_version)))
+        self.setItem(row, 3, QTableWidgetItem(str(available_version)))
+
+    def sizeHint(self):
+        # Compute the size to adapt the window
+        print(self.columnCount(), self.rowCount())
+        width  = self.verticalHeader().width() + self.frameWidth() * 2 
+        + sum([self.columnWidth(i) for i in range(self.columnCount())])
+    
+        height = self.horizontalHeader().height() + self.frameWidth() * 2
+        + sum([self.rowHeight(i) for i in range(self.rowCount())])
+
+        print(width, height)
+        return QSize(width, height)
 
 class DashBoard(CustomApp):
     """
@@ -154,7 +205,8 @@ class DashBoard(CustomApp):
         logger.info('Dashboard Initialized')
 
         if config('general', 'check_version'):
-            self.check_version(show=False)
+            if self.check_update(show=False):
+                sys.exit(0)
 
     @classmethod
     @property
@@ -223,6 +275,7 @@ class DashBoard(CustomApp):
         self.scan_module = extmod.DAQScan(dockarea=area, dashboard=self)
         self.extensions['DAQScan'] = self.scan_module
         self.scan_module.status_signal.connect(self.add_status)
+        #win.setWindowTitle("DAQScan")
         win.show()
         return self.scan_module
 
@@ -389,7 +442,7 @@ class DashBoard(CustomApp):
         self.add_action('about', 'About', 'information2')
         self.add_action('help', 'Help', 'help1')
         self.get_action('help').setShortcut(QtGui.QKeySequence('F1'))
-        self.add_action('check_version', 'Check Version', '', auto_toolbar=False)
+        self.add_action('check_update', 'Check Updates', '', auto_toolbar=False)
         self.toolbar.addSeparator()
         self.add_action('plugin_manager', 'Plugin Manager', '')
 
@@ -451,7 +504,7 @@ class DashBoard(CustomApp):
 
         self.connect_action('about', self.show_about)
         self.connect_action('help', self.show_help)
-        self.connect_action('check_version', lambda: self.check_version(True))
+        self.connect_action('check_update', lambda: self.check_update(True))
         self.connect_action('plugin_manager', self.start_plugin_manager)
 
     def setup_menu(self, menubar: QtWidgets.QMenuBar = None):
@@ -541,7 +594,7 @@ class DashBoard(CustomApp):
         help_menu.addAction(self.get_action('about'))
         help_menu.addAction(self.get_action('help'))
         help_menu.addSeparator()
-        help_menu.addAction(self.get_action('check_version'))
+        help_menu.addAction(self.get_action('check_update'))
         help_menu.addAction(self.get_action('plugin_manager'))
 
         self.overshoot_menu.setEnabled(False)
@@ -1528,32 +1581,97 @@ class DashBoard(CustomApp):
             f"Modular Acquisition with Python\n"
             f"Written by Sébastien Weber")
 
-    def check_version(self, show=True):
+    def check_update(self, show=True):
+
         try:
-            current_version = version_mod.parse(get_version())
-            available_version = version_mod.parse(get_pypi_pymodaq('pymodaq')['version'])
-            msgBox = QtWidgets.QMessageBox()
-            if available_version > current_version:
-                msgBox.setText(f"A new version of PyMoDAQ is available, {str(available_version)}!")
-                msgBox.setInformativeText("Do you want to install it?")
-                msgBox.setStandardButtons(msgBox.Ok | msgBox.Cancel)
-                msgBox.setDefaultButton(msgBox.Ok)
+            packages = ['pymodaq_utils', 'pymodaq_data', 'pymodaq_gui', 'pymodaq']
+            current_versions = [version_mod.parse(get_version(p)) for p in packages]
+            available_versions = [version_mod.parse(get_pypi_pymodaq(p)['version']) for p in packages]
+            #new_versions = np.greater(available_versions, current_versions)
+            new_versions = np.array([True] * len(packages))
+            # Combine package and version information and select only the ones with a newer version available
+            packages_data = np.array(list(zip(packages, current_versions, available_versions)))[new_versions]
 
-                ret = msgBox.exec()
+            if len(packages_data) > 0 or True:
+                #Create a QDialog window and different graphical components
+                dialog = QtWidgets.QDialog()
+                dialog.setWindowTitle("Update check")
+                
+                vlayout = QtWidgets.QVBoxLayout()
+                dialog.setLayout(vlayout)
 
-                if ret == msgBox.Ok:
-                    command = [sys.executable, '-m', 'pip', 'install',
-                               f'pymodaq=={str(available_version)}']
-                    subprocess.Popen(command)
+                message_label = QLabel("New versions of PyMoDAQ packages available!\nPlease select the ones you want to install:")
+                message_label.setAlignment(Qt.AlignCenter)
+                
 
-                    self.restart_fun()
+                table = PymodaqUpdateTableWidget()
+                table.setRowCount(len(packages_data)) 
+                table.setColumnCount(4) 
+                table.setHorizontalHeaderLabels(["Select", "Package", "Current version", "New version"])
+                     
+                for p in packages_data:
+                    table.append_row(QCheckBox(), p[0], p[1], p[2])
+
+                button = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+                button.accepted.connect(dialog.accept)
+                button.rejected.connect(dialog.reject) 
+
+                # The vlayout contains the message, the table and the buttons                
+                # and is connected to the dialog window
+                vlayout.addWidget(message_label)
+                vlayout.addWidget(table)
+                vlayout.addWidget(button)
+
+
+
+                # Force elements to take the right size
+                table.resizeColumnsToContents()
+                table.resizeRowsToContents()
+                message_label.adjustSize()
+                button.adjustSize()
+
+
+                # Resize and disable manual resizing
+                #dialog.resize(width, height) 
+                #dialog.setFixedSize(dialog.size())
+                ret = dialog.exec()
+
+
+                if ret == QDialog.Accepted:
+                    # If the update is accepted, the checked packages are extracted from the table
+                    # and send to the updater
+                    packages_to_update = self.get_table_data(table)
+                    if len(packages_to_update) > 0:
+                        logger.info("Trying to update:")
+                        logger.info(f"\t {', '.join(packages_to_update)}")
+                        subprocess.Popen(['pymodaq_updater', '--wait', '--file', __file__] + packages_to_update)
+                        self.quit_fun()
+                        return True
+                    logger.info("Update found but no packages checked for update.")
             else:
                 if show:
+                    msgBox = QtWidgets.QMessageBox()
+                    msgBox.setWindowTitle("Update check")
                     msgBox.setText(f"Your version of PyMoDAQ,"
                                    f" {str(current_version)}, is up to date!")
                     ret = msgBox.exec()
         except Exception as e:
             logger.exception("Error while checking the available PyMoDAQ version")
+
+        return False
+
+    def get_table_data(self, table_widget):
+        '''
+            Extract a list of package==version from a table widget
+            Highly dependant on the structure of the table
+        '''
+        table_data = []
+        for row in range(table_widget.rowCount()):
+            checkbox = table_widget.cellWidget(row, 0).layout().itemAt(0).widget()
+            if isinstance(checkbox, QCheckBox) and checkbox.isChecked():
+                table_data.append(f'{table_widget.item(row, 1).text()}=={table_widget.item(row, 3).text()}')
+
+        return table_data
 
     def show_file_attributes(self, type_info='dataset'):
         """
