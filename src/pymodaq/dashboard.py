@@ -77,8 +77,7 @@ class PymodaqUpdateTableWidget(QTableWidget):
         super().__init__()
 
         self._checkboxes = []
-        self._packages = []
-        self._available_versions = []
+        self._package_versions = []
 
     def setHorizontalHeaderLabels(self, labels):
         super().setHorizontalHeaderLabels(labels)
@@ -88,8 +87,7 @@ class PymodaqUpdateTableWidget(QTableWidget):
         row = len(self._checkboxes)
 
         self._checkboxes.append(checkbox)
-        self._packages.append(package)
-        self._available_versions.append(available_version)
+        self._package_versions.append(f'{package}=={available_version}')
 
         checkbox_widget = QWidget()
                         
@@ -111,16 +109,23 @@ class PymodaqUpdateTableWidget(QTableWidget):
         self.setItem(row, 2, QTableWidgetItem(str(current_version)))
         self.setItem(row, 3, QTableWidgetItem(str(available_version)))
 
-    def sizeHint(self):
-        # Compute the size to adapt the window
-        print(self.columnCount(), self.rowCount())
-        width  = self.verticalHeader().width() + self.frameWidth() * 2 
-        + sum([self.columnWidth(i) for i in range(self.columnCount())])
-    
-        height = self.horizontalHeader().height() + self.frameWidth() * 2
-        + sum([self.rowHeight(i) for i in range(self.rowCount())])
 
-        print(width, height)
+    def get_checked_data(self):
+    	checked = list(map(lambda c : c.isChecked(), self._checkboxes))
+    	return np.array(self._package_versions)[checked]
+    def sizeHint(self):
+        self.resizeColumnsToContents()
+        self.resizeRowsToContents()
+                
+        # Compute the size to adapt the window
+        width  = self.verticalHeader().width()  \
+        	   + self.frameWidth() * 2 \
+        	   + sum([self.columnWidth(i) for i in range(self.columnCount())])
+        
+        height = self.horizontalHeader().height() \
+        	   + self.frameWidth() * 2 \
+        	   + sum([self.rowHeight(i) for i in range(self.rowCount())])
+
         return QSize(width, height)
 
 class DashBoard(CustomApp):
@@ -1592,13 +1597,13 @@ class DashBoard(CustomApp):
             # Combine package and version information and select only the ones with a newer version available
             packages_data = np.array(list(zip(packages, current_versions, available_versions)))[new_versions]
 
+            #TODO: Remove `or True`
             if len(packages_data) > 0 or True:
                 #Create a QDialog window and different graphical components
                 dialog = QtWidgets.QDialog()
                 dialog.setWindowTitle("Update check")
                 
                 vlayout = QtWidgets.QVBoxLayout()
-                dialog.setLayout(vlayout)
 
                 message_label = QLabel("New versions of PyMoDAQ packages available!\nPlease select the ones you want to install:")
                 message_label.setAlignment(Qt.AlignCenter)
@@ -1621,26 +1626,14 @@ class DashBoard(CustomApp):
                 vlayout.addWidget(message_label)
                 vlayout.addWidget(table)
                 vlayout.addWidget(button)
+                dialog.setLayout(vlayout)
 
-
-
-                # Force elements to take the right size
-                table.resizeColumnsToContents()
-                table.resizeRowsToContents()
-                message_label.adjustSize()
-                button.adjustSize()
-
-
-                # Resize and disable manual resizing
-                #dialog.resize(width, height) 
-                #dialog.setFixedSize(dialog.size())
                 ret = dialog.exec()
-
 
                 if ret == QDialog.Accepted:
                     # If the update is accepted, the checked packages are extracted from the table
                     # and send to the updater
-                    packages_to_update = self.get_table_data(table)
+                    packages_to_update = table.get_checked_data()
                     if len(packages_to_update) > 0:
                         logger.info("Trying to update:")
                         logger.info(f"\t {', '.join(packages_to_update)}")
@@ -1659,19 +1652,6 @@ class DashBoard(CustomApp):
             logger.exception("Error while checking the available PyMoDAQ version")
 
         return False
-
-    def get_table_data(self, table_widget):
-        '''
-            Extract a list of package==version from a table widget
-            Highly dependant on the structure of the table
-        '''
-        table_data = []
-        for row in range(table_widget.rowCount()):
-            checkbox = table_widget.cellWidget(row, 0).layout().itemAt(0).widget()
-            if isinstance(checkbox, QCheckBox) and checkbox.isChecked():
-                table_data.append(f'{table_widget.item(row, 1).text()}=={table_widget.item(row, 3).text()}')
-
-        return table_data
 
     def show_file_attributes(self, type_info='dataset'):
         """
