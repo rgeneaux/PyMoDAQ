@@ -57,7 +57,9 @@ def main():
 	if args.wait:
 		wait_for_parent()
 
-	logger.info(f'Updating packages: {', '.join(args.packages)}')
+	packages_str = ', '.join(args.packages)
+
+	logger.info(f'Updating packages: {packages_str}')
 	
 	with subprocess.Popen([sys.executable, '-m', 'pip', 'install'] + args.packages, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as pip:
 		for line in pip.stdout:
@@ -66,9 +68,9 @@ def main():
 	
 
 	if ret_code == 0:
-		logger.info(f'Succesfully updated {', '.join(args.packages)}')
+		logger.info(f'Succesfully updated {packages_str}')
 	else:
-		logger.error(f'Error while updating {', '.join(args.packages)}, pip returned {ret_code}')
+		logger.error(f'Error while updating {packages_str}, pip returned {ret_code}')
 
 	if args.file is not None:
 		logger.info(f"Restarting {args.file} script after update.")

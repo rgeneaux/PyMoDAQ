@@ -1639,8 +1639,9 @@ class DashBoard(CustomApp):
                     # and send to the updater
                     packages_to_update = table.get_checked_data()
                     if len(packages_to_update) > 0:
+                        packages_to_update_str = ', '.join(packages_to_update)
                         logger.info("Trying to update:")
-                        logger.info(f"\t {', '.join(packages_to_update)}")
+                        logger.info(f"\t {packages_to_update_str}")
                         subprocess.Popen(['pymodaq_updater', '--wait', '--file', __file__] + packages_to_update)
                         self.quit_fun()
                         return True
