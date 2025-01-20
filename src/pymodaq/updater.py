@@ -59,11 +59,10 @@ def main():
 
 	logger.info(f'Updating packages: {', '.join(args.packages)}')
 	
-	ret_code = 0
-	# with subprocess.Popen([sys.executable, '-m', 'pip', 'install'] + args.packages, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as pip:
-	# 	for line in pip.stdout:
-	# 		logger.info(line[:-1].decode('utf-8'))
-	# ret_code = pip.wait()
+	with subprocess.Popen([sys.executable, '-m', 'pip', 'install'] + args.packages, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as pip:
+		for line in pip.stdout:
+			logger.info(line[:-1].decode('utf-8'))
+	ret_code = pip.wait()
 	
 
 	if ret_code == 0:

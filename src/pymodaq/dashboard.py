@@ -13,7 +13,7 @@ from typing import Tuple, List, Any, TYPE_CHECKING
 
 from qtpy import QtGui, QtWidgets, QtCore
 from qtpy.QtCore import Qt, QObject, Slot, QThread, Signal, QSize
-from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QCheckBox, QWidget, QHBoxLayout, QLabel, QDialogButtonBox, QDialog
+from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QCheckBox, QWidget, QLabel, QDialogButtonBox, QDialog
 from time import perf_counter
 import numpy as np
 
@@ -73,6 +73,10 @@ class ManagerEnums(BaseEnum):
     roi = 3
 
 class PymodaqUpdateTableWidget(QTableWidget):
+    '''
+        A class to represent PyMoDAQ and its subpackages'
+        available updates as a table.
+    '''
     def __init__(self):
         super().__init__()
 
@@ -112,12 +116,13 @@ class PymodaqUpdateTableWidget(QTableWidget):
 
     def get_checked_data(self):
     	checked = list(map(lambda c : c.isChecked(), self._checkboxes))
-    	return np.array(self._package_versions)[checked]
+    	return list(np.array(self._package_versions)[checked])
+
     def sizeHint(self):
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
                 
-        # Compute the size to adapt the window
+        # Compute the size to adapt the window (header + borders + sum of all the elements)
         width  = self.verticalHeader().width()  \
         	   + self.frameWidth() * 2 \
         	   + sum([self.columnWidth(i) for i in range(self.columnCount())])
@@ -1592,13 +1597,12 @@ class DashBoard(CustomApp):
             packages = ['pymodaq_utils', 'pymodaq_data', 'pymodaq_gui', 'pymodaq']
             current_versions = [version_mod.parse(get_version(p)) for p in packages]
             available_versions = [version_mod.parse(get_pypi_pymodaq(p)['version']) for p in packages]
-            #new_versions = np.greater(available_versions, current_versions)
-            new_versions = np.array([True] * len(packages))
+            new_versions = np.greater(available_versions, current_versions)
             # Combine package and version information and select only the ones with a newer version available
             packages_data = np.array(list(zip(packages, current_versions, available_versions)))[new_versions]
 
             #TODO: Remove `or True`
-            if len(packages_data) > 0 or True:
+            if len(packages_data) > 0:
                 #Create a QDialog window and different graphical components
                 dialog = QtWidgets.QDialog()
                 dialog.setWindowTitle("Update check")
@@ -1645,8 +1649,7 @@ class DashBoard(CustomApp):
                 if show:
                     msgBox = QtWidgets.QMessageBox()
                     msgBox.setWindowTitle("Update check")
-                    msgBox.setText(f"Your version of PyMoDAQ,"
-                                   f" {str(current_version)}, is up to date!")
+                    msgBox.setText("Everything is up to date!")
                     ret = msgBox.exec()
         except Exception as e:
             logger.exception("Error while checking the available PyMoDAQ version")
