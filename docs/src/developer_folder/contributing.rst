@@ -24,10 +24,13 @@ using git command line or GitHub Desktop. Then create a dedicated branch name fr
 
 Finally it is advised to create a dedicated virtual environment for this and install PyMoDAQ's package as a developer. For example, using mamba as an environment manager:
 
-* ``mamba create -n dev_env``
-* ``mamba activate dev_env``
-* ``cd`` to the location of the folder where you downloaded or cloned the repository.
-* install the package as a developer with test tools using the command ``pip install -e ".[dev]"``.
+- ``mamba create -n dev_env``
+- ``mamba activate dev_env``
+- ``cd`` to the location of the folder where you downloaded or cloned the repository.
+- install the package as a developer with test tools using the command ``pip install -e ".[dev]"``.
+    - the `-e` option tells pip to install the package in editable mode, meaning that any change done to the source will be reported to the installed package.
+    - the `".[dev]"` argument indicate to install the current folder as a package alongside its optional dependancies, declared as `dev` in the `pyproject.toml` file.
+    - the quotes around `[dev]` just allow to escape the sequence in order to not be interpreted by the shell.
 
 
 Then any change on the code will be *seen* by python interpreter so that you can see and test your modifications. Think about
