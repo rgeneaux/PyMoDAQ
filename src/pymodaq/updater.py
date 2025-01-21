@@ -54,7 +54,7 @@ def process_args():
 	parser.add_argument('packages', type=str, nargs='+', help='package list')
 	return parser.parse_args()
 
-def detect_launch_name_and_restart(args):
+def restart_if_command_launch(args):
 	'''
 		Try to detect if this process if launched using the declared command (i.e. `pymodaq_updater`)
 		or using the script file (`updater.py`). If it uses the command, it restart the process to
@@ -75,17 +75,15 @@ def detect_launch_name_and_restart(args):
 		sys.exit(0)
 
 def main():
-	print(sys.argv)
 	args = process_args()
 	logger.info(f"Arguments processed: {args}")
 
-	detect_launch_name_and_restart(args)
+	restart_if_command_launch(args)
 
 	if args.wait:
 		wait_for_parent()
 
 	packages_str = ', '.join(args.packages)
-
 	logger.info(f'Updating packages: {packages_str}')
 	
 	with subprocess.Popen([sys.executable, '-m', 'pip', 'install'] + args.packages, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as pip:
