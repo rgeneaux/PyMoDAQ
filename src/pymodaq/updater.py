@@ -2,10 +2,14 @@ import argparse
 import subprocess
 import sys
 import time
+import logging
+
+from pathlib import Path
 
 from pymodaq_utils.logger import set_logger, get_module_name
 
 logger = set_logger(get_module_name(__file__))
+logger.addHandler(logging.StreamHandler(sys.stdout))
 
 def wait_for_parent():
 	'''
@@ -50,9 +54,32 @@ def process_args():
 	parser.add_argument('packages', type=str, nargs='+', help='package list')
 	return parser.parse_args()
 
+def detect_launch_name_and_restart(args):
+	'''
+		Try to detect if this process if launched using the declared command (i.e. `pymodaq_updater`)
+		or using the script file (`updater.py`). If it uses the command, it restart the process to
+		force it to use the script file, thus preventing a locked file during update on windows systems.
+	'''
+	python_file_path = Path(__file__) # Should be the path to `updater.py`
+	started_path = Path(sys.argv[0])  # Either `updater.py` or `pymodaq_updater`
+	
+	# If they're different we'll restart using the script file
+	if started_path.absolute() != python_file_path.absolute():
+		logger.info("Started as pymodaq_updater, need to restart using python to prevent lock.")
+		# We HAVE to wait for this process to stop in the restarted process
+		new_args = ['--wait'] + sys.argv[1:]
+		if args.wait:
+			wait_for_parent()
+	
+		subprocess.Popen([sys.executable, str(python_file_path.absolute())] + new_args,  stdin=subprocess.PIPE)
+		sys.exit(0)
+
 def main():
+	print(sys.argv)
 	args = process_args()
 	logger.info(f"Arguments processed: {args}")
+
+	detect_launch_name_and_restart(args)
 
 	if args.wait:
 		wait_for_parent()
@@ -63,7 +90,8 @@ def main():
 	
 	with subprocess.Popen([sys.executable, '-m', 'pip', 'install'] + args.packages, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as pip:
 		for line in pip.stdout:
-			logger.info(line[:-1].decode('utf-8'))
+			# Can't decode as some characters are not valid and make the whole process fail
+			logger.info(line[:-1])
 	ret_code = pip.wait()
 	
 

@@ -1599,6 +1599,8 @@ class DashBoard(CustomApp):
             available_versions = [version_mod.parse(get_pypi_pymodaq(p)['version']) for p in packages]
             new_versions = np.greater(available_versions, current_versions)
             # Combine package and version information and select only the ones with a newer version available
+            
+            
             packages_data = np.array(list(zip(packages, current_versions, available_versions)))[new_versions]
 
             #TODO: Remove `or True`
@@ -1642,7 +1644,7 @@ class DashBoard(CustomApp):
                         packages_to_update_str = ', '.join(packages_to_update)
                         logger.info("Trying to update:")
                         logger.info(f"\t {packages_to_update_str}")
-                        subprocess.Popen(['pymodaq_updater', '--wait', '--file', __file__] + packages_to_update)
+                        subprocess.Popen(['pymodaq_updater', '--wait', '--file', __file__] + packages_to_update, stdin=subprocess.PIPE)
                         self.quit_fun()
                         return True
                     logger.info("Update found but no packages checked for update.")
