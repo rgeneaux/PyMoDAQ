@@ -79,4 +79,5 @@ include = [
 [tool.coverage.run]
 omit = [
     "*/examples/*",
+    "*/resources/*"
 ]
