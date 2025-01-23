@@ -93,3 +93,9 @@ fallback-version = '5.0.1'
 include = [
     "/src",
 ]
+
+[tool.coverage.run]
+omit = [
+    "*/examples/*",
+    "*/resources/*"
+]
