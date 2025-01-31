@@ -25,6 +25,7 @@ def check_qt_presence():
 check_qt_presence()
 
 
+
 try:
     # with open(str(Path(__file__).parent.joinpath('resources/VERSION')), 'r') as fvers:
     #     __version__ = fvers.read().strip()
@@ -78,6 +79,14 @@ try:
 
     config = Config()  # to ckeck for config file existence, otherwise create one
     copy_preset()
+
+    # Need the config to exists before importing
+    from pymodaq_utils.environment import EnvironmentBackupManager
+    
+    if config['backup']['keep_backup']:
+        ebm = EnvironmentBackupManager()
+        ebm.save_backup()
+
 
     logger.info('************************')
     logger.info(f"Setting Qt backend to: {config['qtbackend']['backend']} ...")
