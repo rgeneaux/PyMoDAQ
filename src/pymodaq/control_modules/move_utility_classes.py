@@ -212,10 +212,13 @@ def main(plugin_file, init=True, title='test'):
     from qtpy import QtWidgets
     from pymodaq.control_modules.daq_move import DAQ_Move
     from pathlib import Path
+
+    act = Path(plugin_file).stem.split('daq_move_')[1]
+
     app = mkQApp("PyMoDAQ Viewer")
 
     widget = QtWidgets.QWidget()
-    prog = DAQ_Move(widget, title=title,)
+    prog = DAQ_Move(widget, title=title, actuator=act)
     widget.show()
     prog.actuator = Path(plugin_file).stem[9:]
     if init:
