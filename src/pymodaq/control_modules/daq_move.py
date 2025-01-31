@@ -124,7 +124,7 @@ class DAQ_Move(ParameterControlModule):
         self.splash_sc = get_splash_sc()
         self._title = title
         if len(ACTUATOR_TYPES) > 0:  # will be 0 if no valid plugins are installed
-            self.actuator = ACTUATOR_TYPES[0]
+            self.actuator = kwargs.get('actuator', ACTUATOR_TYPES[0])
 
         self.module_and_data_saver = module_saving.ActuatorSaver(self)
 
@@ -726,7 +726,7 @@ class DAQ_Move_Hardware(QObject):
             Uninitialize the stage closing the hardware.
 
         """
-        if self.hardware is not None:
+        if self.hardware is not None and self.hardware.controller is not None:
             self.hardware.close()
 
         return "Stage uninitialized"
@@ -911,7 +911,6 @@ class DAQ_Move_Hardware(QObject):
         except Exception as e:
             self.logger.exception(str(e))
 
-
     def stop_motion(self):
         """
             stop hardware motion with motion_stopped attribute updtaed to True and a status signal sended with an "update_status" Thread Command
@@ -922,7 +921,8 @@ class DAQ_Move_Hardware(QObject):
         """
         self.status_sig.emit(ThreadCommand(command="Update_Status", attribute=["Motion stoping", 'log']))
         self.motion_stoped = True
-        self.hardware.stop_motion()
+        if self.hardware is not None and self.hardware.controller is not None:
+            self.hardware.stop_motion()
         self.hardware.poll_timer.stop()
 
     @Slot(edict)
