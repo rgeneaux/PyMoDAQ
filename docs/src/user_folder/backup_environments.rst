@@ -3,7 +3,7 @@
 Environment backups
 ===================
 
-PyMoDAQ keeps track of your virtual environment packages and save pip-compatible backups that you can be used to transfer or to revert
+PyMoDAQ keeps track of your virtual environment packages and save pip-compatible backups that can be used to transfer or to revert
 to a working environment
 
 A new environment is kept only if different from the last backup. The oldest ones are deleted, according to the 
@@ -53,7 +53,7 @@ Restore or transfer a working environment
 ------------------------------------------
 
 If PyMoDAQ doesn't start after updating/modifying the packages in your virtual environment, or if you want to transfer a working
-environment, you can try using a backup to install. Using ``mamba``, and an backup file declaring python version ``3.12.3``:
+environment, you can try using a backup to install. Using ``mamba``, and a backup file declaring python version ``3.12.3``:
 
 * Create a new environment using the same python version as the one in your backup file ``mamba create -n pymodaq_newenv python=3.12.3``
 * Activate the environment ``mamba activate pymodaq_newenv``
