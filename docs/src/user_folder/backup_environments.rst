@@ -3,12 +3,11 @@
 Environment backups
 ===================
 
-PyMoDAQ keeps track of your virtual environment packages and save pip-compatible backups that you can use to transfert or revert
+PyMoDAQ keeps track of your virtual environment packages and save pip-compatible backups that you can be used to transfer or to revert
 to a working environment
 
-New environments are kept only if they're differents from the previous saved one. The oldest ones are deleted, according to the 
-*limit* value kept in the configuration: it is the maximum number of environment backups to keep. There is actually three parameters
-to control backups in the config:
+A new environment is kept only if different from the last backup. The oldest ones are deleted, according to the 
+*limit* value kept in the configuration. Three parameters controlling backups are defined in the configuration file:
 
 .. code-block:: toml
 
@@ -19,16 +18,14 @@ to control backups in the config:
 	limit = 25                # how many to keep (maximum)
 	...
 
-
-When activated, these backups are located in PyMoDAQ's local configuration folder, under the general following path:
+These backups files are saved in PyMoDAQ's local configuration folder, using the general following path:
 
 ``/home/<username>/.pymodaq/<folder value from config>/<environment_name>``
 
 
-
 Backup structure
 ----------------
-Backup files are structured in a simple way to be compatible with pip but with a little bit more metadata. They start with two commented lines:
+Backup files are structured in a simple way to be compatible with pip, but start with two commented lines to provide additional information:
 
 * the first one is the python executable path used to launch PyMoDAQ
 * the second one is the python executable version
@@ -46,20 +43,19 @@ For example:
 	...
 
 
-Also, the filename gives some information about when a backup was created by being named according to the following pattern ``<year><month><day><hour><minute><second>_environment.txt``.
+The filename also gives information about when a backup was created by being named using the following pattern ``<year><month><day><hour><minute><second>_environment.txt``. 
+It is therefore not recommended to rename backup files, as it may mess up ranking them by creation date.
 
 A backup created on January 31rd 2025 at 11:24:05 would be ``20250131112405_environment.txt``
 
-It is recommended not to rename backup files as it may mess up ranking them by date.
 
-Restore or transfert a working environment
+Restore or transfer a working environment
 ------------------------------------------
 
+If PyMoDAQ doesn't start after updating/modifying the packages in your virtual environment, or if you want to transfer a working
+environment, you can try using a backup to install. Using ``mamba``, and an backup file declaring python version ``3.12.3``:
 
-If PyMoDAQ doesn't start after updating/modifying the packages in your virtual environment, or if you want to transfert a working
-environment, you can try using a backup to install. For exemple, using ``mamba``, and an environment backup file using python ``3.12.3``
-
-* First create a new environment using the same python version as the one in your backup file ``mamba create -n pymodaq_newenv python=3.12.3``
+* Create a new environment using the same python version as the one in your backup file ``mamba create -n pymodaq_newenv python=3.12.3``
 * Activate the environment ``mamba activate pymodaq_newenv``
 * Install packages from the backup file ``pip install -r 20250131112405_environment.txt``
-* ``dashboard`` should open PyMoDAQ dashboard
+* Call the ``dashboard`` command, it should open PyMoDAQ dashboard
