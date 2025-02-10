@@ -80,13 +80,18 @@ try:
     config = Config()  # to ckeck for config file existence, otherwise create one
     copy_preset()
 
-    # Need the config to exists before importing
-    from pymodaq_utils.environment import EnvironmentBackupManager
-    
-    if config['backup']['keep_backup']:
-        ebm = EnvironmentBackupManager()
-        ebm.save_backup()
-
+    try:
+        # Need the config to exists before importing
+        from pymodaq_utils.environment import EnvironmentBackupManager
+        
+        if config['backup']['keep_backup']:
+            ebm = EnvironmentBackupManager()
+            ebm.save_backup()
+    except ModuleNotFoundError as e:
+        infos = "Your pymodaq_utils version is outdated and doesn't allow for automatic backup of pip packages." \
+                " You should update it."
+        print(infos)
+        logger.warning(infos)
 
     logger.info('************************')
     logger.info(f"Setting Qt backend to: {config['qtbackend']['backend']} ...")
