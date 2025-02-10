@@ -12,6 +12,7 @@ import pymodaq_gui  # to init stuff related to pymodaq_gui  # necessary, leave i
 
 from pymodaq_data import Q_, Unit, ureg  # necessary, leave it there
 
+
 try:
     # with open(str(Path(__file__).parent.joinpath('resources/VERSION')), 'r') as fvers:
     #     __version__ = fvers.read().strip()
@@ -43,8 +44,21 @@ try:
         config = Config()  # to ckeck for config file existence, otherwise create one
         copy_preset()
 
-        logger.info('')
-        logger.info('')
+        from pymodaq_utils.config import Config
+        from pymodaq.utils.scanner.utils import register_scanners
+
+        try:
+            # Need the config to exists before importing
+            from pymodaq_utils.environment import EnvironmentBackupManager
+
+            if config['backup']['keep_backup']:
+                ebm = EnvironmentBackupManager()
+                ebm.save_backup()
+        except ModuleNotFoundError as e:
+            infos = "Your pymodaq_utils version is outdated and doesn't allow for automatic backup of pip packages." \
+                    " You should update it."
+            print(infos)
+            logger.warning(infos)
 
         logger.info('*************************************************************************')
         logger.info(f"Getting the list of instrument plugins...")
@@ -62,6 +76,7 @@ try:
 
     except Exception:
         print("Couldn't create the local folder to store logs , presets...")
+
 
 
 except Exception as e:
