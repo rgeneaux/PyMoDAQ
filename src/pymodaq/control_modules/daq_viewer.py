@@ -1437,7 +1437,7 @@ class DAQ_Detector(QObject):
     def close(self):
         """ Call the close method of the instrument plugin class
         """
-        if self.detector is not None:
+        if self.detector is not None and self.detector.controller is not None:
             status = self.detector.close()
             return status
 

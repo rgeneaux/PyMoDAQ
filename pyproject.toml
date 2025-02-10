@@ -32,7 +32,7 @@ classifiers = [
 ]
 dependencies = [
     "pymodaq_utils",
-    "pymodaq_gui",
+    "pymodaq_gui>=5.0.15",
     "pymodaq_data>=5.0.15",
     "easydict",
     "multipledispatch",
@@ -52,6 +52,24 @@ dependencies = [
     "pyleco>0.3; python_version>=\"3.8\"",
     "bayesian-optimization<2.0.0",
 ]
+
+
+[project.optional-dependencies]
+dev = [
+    "hatch", 
+    "flake8",
+    "h5py",
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+
+    "pyqt5",
+    "pyqt6",
+    "pyside6",
+    "pytest-qt",
+    "pytest-xvfb",
+]
+
 
 [project.scripts]
 daq_logger = "pymodaq.extensions.daq_logger:main"
