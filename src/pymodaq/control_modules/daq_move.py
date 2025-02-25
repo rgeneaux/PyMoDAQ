@@ -877,6 +877,7 @@ class DAQ_Move_Hardware(QObject):
             * **reset_stop_motion** command, set the motion_stopped attribute to false
         """
         try:
+            logger.debug(f'Threadcommand {command.command} sent to {self.title}')
             if command.command == "ini_stage":
                 status: edict = self.ini_stage(*command.attribute)
                 self.status_sig.emit(ThreadCommand(command=command.command, attribute=status))
@@ -907,7 +908,10 @@ class DAQ_Move_Hardware(QObject):
             else:  # custom commands for particular plugins (see spectrometer module 'get_spectro_wl' for instance)
                 if hasattr(self.hardware, command.command):
                     cmd = getattr(self.hardware, command.command)
-                    cmd(*command.attribute)
+                    if isinstance(command.attribute, list):
+                        cmd(*command.attribute)
+                    elif isinstance(command.attribute, dict):
+                        cmd(**command.attribute)
         except Exception as e:
             self.logger.exception(str(e))
 
