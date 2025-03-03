@@ -776,6 +776,7 @@ class DAQ_Move_base(QObject):
                 logger.info('Timeout activated')
         else:
             self.poll_timer.stop()
+            self.current_value = self.get_actuator_value()
             logger.debug(f'Current value: {self._current_value}')
             self.move_done(self._current_value)
 
