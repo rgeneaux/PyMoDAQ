@@ -395,21 +395,13 @@ class DashBoard(CustomApp):
         self.add_action('modify_preset', 'Modify Preset', '',
                         'Modify an existing experimental setup configuration file: a "preset"',
                         auto_toolbar=False)
-
-        presets = []
-        for ind_file, file in enumerate(self.preset_path.iterdir()):
-            if file.suffix == '.xml':
-                filestem = file.stem
-                self.add_action(self.get_action_from_file(file, ManagerEnums.preset),
-                                filestem, '', f'Load the {filestem}.xml preset',
-                                auto_toolbar=False)
-                presets.append(filestem)
-
-        self.add_widget('preset_list', QtWidgets.QComboBox, toolbar=self.toolbar,
-                        signal_str='currentTextChanged', slot=self.update_preset_action)
         self.add_action('load_preset', 'LOAD', 'Open',
                         tip='Load the selected Preset: ')
-        self.get_action('preset_list').addItems(presets)
+        self.add_widget('preset_list', QtWidgets.QComboBox, toolbar=self.toolbar,
+                        signal_str='currentTextChanged', slot=self.update_preset_action)
+
+        self.update_preset_action_list()
+
         self.add_action('new_overshoot', 'New Overshoot', '',
                         'Create a new experimental setup overshoot configuration file',
                         auto_toolbar=False)
@@ -455,6 +447,20 @@ class DashBoard(CustomApp):
         self.add_action('check_update', 'Check Updates', '', auto_toolbar=False)
         self.toolbar.addSeparator()
         self.add_action('plugin_manager', 'Plugin Manager', '')
+
+    def update_preset_action_list(self):
+        presets = []
+        self.get_action('preset_list').clear()
+        for ind_file, file in enumerate(self.preset_path.iterdir()):
+            if file.suffix == '.xml':
+                filestem = file.stem
+                if not self.has_action(self.get_action_from_file(file, ManagerEnums.preset)):
+                    self.add_action(self.get_action_from_file(file, ManagerEnums.preset),
+                                    filestem, '', f'Load the {filestem}.xml preset',
+                                    auto_toolbar=False)
+                presets.append(filestem)
+
+        self.get_action('preset_list').addItems(presets)
 
     def update_preset_action(self, preset_name: str):
         self.get_action('load_preset').setToolTip(f'Load the {preset_name}.xml preset file!')
@@ -677,12 +683,11 @@ class DashBoard(CustomApp):
 
     def create_preset(self):
         try:
-            self.preset_manager.set_new_preset()
-            self.add_action(self.get_action_from_file(self.preset_file,
-                                                      ManagerEnums.preset),
-                            self.preset_file.stem, '')
-            self.setup_menu(self.menubar)
-            self.new_preset_created.emit()
+            status = self.preset_manager.set_new_preset()
+            if status:
+                self.update_preset_action_list()
+                self.setup_menu(self.menubar)
+                self.new_preset_created.emit()
         except Exception as e:
             logger.exception(str(e))
 
