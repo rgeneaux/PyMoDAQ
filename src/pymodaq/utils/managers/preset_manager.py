@@ -19,12 +19,9 @@ import pymodaq.utils.managers.preset_manager_utils  # to register move and det t
 logger = set_logger(get_module_name(__file__))
 
 # check if preset_mode directory exists on the drive
-pid_path = config_mod_pymodaq.get_set_pid_path()
 preset_path = config_mod_pymodaq.get_set_preset_path()
 overshoot_path = config_mod_pymodaq.get_set_overshoot_path()
 layout_path = config_mod_pymodaq.get_set_layout_path()
-
-pid_models = [mod['name'] for mod in get_models()]
 
 
 class PresetManager:
@@ -39,7 +36,7 @@ class PresetManager:
         self.param_options = param_options
         self.preset_path = path
         self.preset_params = None
-        self.pid_type = False
+
         if msgbox:
             msgBox = QtWidgets.QMessageBox()
             msgBox.setText("Preset Manager?")
@@ -65,28 +62,16 @@ class PresetManager:
 
         """
         status = False
-        self.pid_type = False
         children = ioxml.XML_file_to_parameter(filename)
         self.preset_params = Parameter.create(title='Preset', name='Preset', type='group', children=children)
         if show:
             status = self.show_preset()
         return status
 
-    def get_set_pid_model_params(self, model_file):
-        self.preset_params.child('model_settings').clearChildren()
-        model = get_models(model_file)
-        if model is not None:
-            params = model['class'].params
-            self.preset_params.child('model_settings').addChildren(params)
 
     def set_new_preset(self):
-        self.pid_type = False
         param = [
             {'title': 'Filename:', 'name': 'filename', 'type': 'str', 'value': 'preset_default'},
-            {'title': 'Use PID as actuator:', 'name': 'use_pid', 'type': 'bool', 'value': False},
-            # {'title': 'Saving options:', 'name': 'saving_options', 'type': 'group', 'children': H5Saver.params},
-            {'title': 'PID models:', 'name': 'pid_models', 'type': 'list', 'visible': False,
-             'limits': pid_models},
             {'title': 'Model Settings:', 'name': 'model_settings', 'type': 'group', 'visible': False, 'children': []},
         ]
         params_move = [
@@ -101,9 +86,6 @@ class PresetManager:
                     self.preset_params.child(option['path']).setOpts(**option['options_dict'])
         except Exception as e:
             logger.exception(str(e))
-
-        if len(pid_models) != 0:
-            self.get_set_pid_model_params(pid_models[0])
 
         self.preset_params.sigTreeStateChanged.connect(self.parameter_tree_changed)
 
@@ -129,12 +111,6 @@ class PresetManager:
                         data[0].child('params', 'main_settings', 'module_name').setValue(data[0].child('name').value())
 
             elif change == 'value':
-
-                if param.name() == 'use_pid':
-                    self.preset_params.child('pid_models').show(param.value())
-                    self.preset_params.child('model_settings').show(param.value())
-                if param.name() == 'pid_models' and param.value() != '':
-                    self.get_set_pid_model_params(param.value())
                 if param.name() == 'name':
                     param.parent().child('params', 'main_settings', 'module_name').setValue(param.value())
 
@@ -165,10 +141,7 @@ class PresetManager:
         dialog.setWindowTitle('Fill in information about this manager')
         res = dialog.exec()
 
-        if self.pid_type:
-            path = pid_path
-        else:
-            path = self.preset_path
+        path = self.preset_path
 
         if res == dialog.Accepted:
             # save managers parameters in a xml file
@@ -194,17 +167,16 @@ class PresetManager:
                     # emit status signal to dashboard to write : did not save ?
                 pass
 
-            if not self.pid_type:
-                # check if overshoot configuration and layout configuration with same name exists => delete them if yes
-                file = os.path.splitext(self.preset_params.child('filename').value())[0]
-                file = os.path.join(overshoot_path, file + '.xml')
-                if os.path.isfile(file):
-                    os.remove(file)
+            # check if overshoot configuration and layout configuration with same name exists => delete them if yes
+            file = os.path.splitext(self.preset_params.child('filename').value())[0]
+            file = os.path.join(overshoot_path, file + '.xml')
+            if os.path.isfile(file):
+                os.remove(file)
 
-                file = os.path.splitext(self.preset_params.child('filename').value())[0]
-                file = os.path.join(layout_path, file + '.dock')
-                if os.path.isfile(file):
-                    os.remove(file)
+            file = os.path.splitext(self.preset_params.child('filename').value())[0]
+            file = os.path.join(layout_path, file + '.dock')
+            if os.path.isfile(file):
+                os.remove(file)
 
         return res == dialog.Accepted
 
