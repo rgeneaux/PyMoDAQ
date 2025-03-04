@@ -35,7 +35,7 @@ class PresetManager:
         self.extra_params = extra_params
         self.param_options = param_options
         self.preset_path = path
-        self.preset_params = None
+        self.preset_params: Parameter = None
 
         if msgbox:
             msgBox = QtWidgets.QMessageBox()
@@ -56,6 +56,13 @@ class PresetManager:
                     self.set_file_preset(str(path))
             else:  # cancel
                 pass
+
+    @property
+    def filename(self) -> str:
+        try:
+            return self.preset_params['filename']
+        except:
+            return None
 
     def set_file_preset(self, filename, show=True):
         """
@@ -142,16 +149,17 @@ class PresetManager:
         res = dialog.exec()
 
         path = self.preset_path
+        file= None
 
         if res == dialog.Accepted:
             # save managers parameters in a xml file
             # start = os.path.split(os.path.split(os.path.realpath(__file__))[0])[0]
             # start = os.path.join("..",'daq_scan')
-            filename_without_extension = self.preset_params.child('filename').value()
+            filename_without_extension = self.filename
 
             try:
                 ioxml.parameter_to_xml_file(self.preset_params,
-                                            os.path.join(path, filename_without_extension),
+                                            path.joinpath(filename_without_extension),
                                             overwrite=False)
             except FileExistsError as currenterror:
                 # logger.warning(str(currenterror)+"File " + filename_without_extension + ".xml exists")
@@ -160,7 +168,7 @@ class PresetManager:
                                         message="File exist do you want to overwrite it ?")
                 if user_agreed:
                     ioxml.parameter_to_xml_file(self.preset_params,
-                                                os.path.join(path, filename_without_extension))
+                                                path.joinpath(filename_without_extension))
                     logger.warning(f"File {filename_without_extension}.xml overwriten at user request")
                 else:
                     logger.warning(f"File {filename_without_extension}.xml wasn't saved at user request")
@@ -168,15 +176,11 @@ class PresetManager:
                 pass
 
             # check if overshoot configuration and layout configuration with same name exists => delete them if yes
-            file = os.path.splitext(self.preset_params.child('filename').value())[0]
-            file = os.path.join(overshoot_path, file + '.xml')
-            if os.path.isfile(file):
-                os.remove(file)
+            over_shoot_file = overshoot_path.joinpath(self.filename + '.xml')
+            over_shoot_file.unlink(missing_ok=True)
 
-            file = os.path.splitext(self.preset_params.child('filename').value())[0]
-            file = os.path.join(layout_path, file + '.dock')
-            if os.path.isfile(file):
-                os.remove(file)
+            layout_file = layout_path.joinpath(self.filename + '.dock')
+            layout_file.unlink(missing_ok=True)
 
         return res == dialog.Accepted
 
