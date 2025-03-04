@@ -156,11 +156,14 @@ def comon_parameters_fun(is_multiaxes=False, axes_names=None,
             axis_name = ''
     elif isinstance(axis_names, dict):
         axis_name = axis_names[list(axis_names.keys())[0]]
+    else:
+        raise ValueError('axis_names should be either a list of string or a dict with strings '
+                         'as keys')
     params = [
                  {'title': 'MultiAxes:', 'name': 'multiaxes', 'type': 'group',
-                  'visible': is_multiaxes, 'children': [
-                     {'title': 'is Multiaxes:', 'name': 'ismultiaxes', 'type': 'bool',
-                      'value': is_multiaxes,  'default': False},
+                  'visible': True, 'children': [
+                     {'title': 'Controller ID:', 'name': 'controller_ID', 'type': 'int', 'value': 0,
+                      'default': 0},
                      {'title': 'Status:', 'name': 'multi_status', 'type': 'list',
                       'value': 'Master' if master else 'Slave', 'limits': ['Master', 'Slave']},
                      {'title': 'Axis:', 'name': 'axis', 'type': 'list', 'limits': axis_names,
@@ -175,7 +178,7 @@ params = [
         {'title': 'Actuator type:', 'name': 'move_type', 'type': 'str', 'value': '', 'readonly': True},
         {'title': 'Actuator name:', 'name': 'module_name', 'type': 'str', 'value': '', 'readonly': True},
         {'title': 'Plugin Config:', 'name': 'plugin_config', 'type': 'bool_push', 'label': 'Show Config', },
-        {'title': 'Controller ID:', 'name': 'controller_ID', 'type': 'int', 'value': 0, 'default': 0},
+
         {'title': 'Refresh value (ms):', 'name': 'refresh_timeout', 'type': 'int',
             'value': config('actuator', 'refresh_timeout_ms')},
         {'title': 'TCP/IP options:', 'name': 'tcpip', 'type': 'group', 'visible': True, 'expanded': False,
@@ -514,9 +517,10 @@ class DAQ_Move_base(QObject):
             old_controller = slave_controller
 
         self.status.update(edict(info="", controller=None, initialized=False))
-        if self.settings['multiaxes', 'ismultiaxes'] and not self.is_master:
+        if not self.is_master:
             if old_controller is None:
-                raise Exception('no controller has been defined externally while this axe is a slave one')
+                raise Exception('no controller has been defined externally while this axe '
+                                'is a slave one')
             else:
                 controller = old_controller
         else:  # Master stage

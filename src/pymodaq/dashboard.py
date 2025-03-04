@@ -1030,17 +1030,16 @@ class DashBoard(CustomApp):
                         self.preset_manager.preset_params.child('Detectors').children()]
 
             for plug in plugins:
-                plug['ID'] = plug['value'].child('params', 'main_settings', 'controller_ID').value()
                 if plug["type"] == 'det':
-                    plug['status'] = plug['value'].child(
-                        'params', 'detector_settings', 'controller_status').value()
+                    plug['ID'] = plug['value']['params', 'detector_settings', 'controller_ID']
+                    plug['status'] = plug['value']['params', 'detector_settings',
+                        'controller_status']
                 else:
-                    if 'multiaxes' in [child.name() for child in plug['value'].child(
-                            'params', 'move_settings').children()]:
-                        plug['status'] = plug['value'].child(
-                            'params', 'move_settings', 'multiaxes', 'multi_status').value()
-                    else:
-                        plug['status'] = 'Master'
+                    plug['ID'] = plug['value']['params', 'move_settings',
+                        'multiaxes', 'controller_ID']
+                    plug['status'] = plug['value'][
+                            'params', 'move_settings', 'multiaxes', 'multi_status']
+
 
             IDs = list(set([plug['ID'] for plug in plugins]))
             # %%
