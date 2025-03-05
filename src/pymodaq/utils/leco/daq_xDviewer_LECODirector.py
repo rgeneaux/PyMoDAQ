@@ -7,7 +7,7 @@ from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, como
 
 from pymodaq_utils.utils import ThreadCommand, getLineInfo
 from pymodaq_gui.parameter import Parameter
-from pymodaq.utils.tcp_ip.serializer import DeSerializer
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer
 
 from pymodaq.utils.leco.leco_director import LECODirector, leco_parameters
 from pymodaq.utils.leco.director_utils import DetectorDirector
