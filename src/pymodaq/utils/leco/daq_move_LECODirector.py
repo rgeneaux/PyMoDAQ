@@ -17,8 +17,7 @@ from pymodaq_gui.parameter import Parameter
 
 from pymodaq.utils.leco.leco_director import LECODirector, leco_parameters
 from pymodaq.utils.leco.director_utils import ActuatorDirector
-from pymodaq.utils.tcp_ip.serializer import DeSerializer
-
+from pymodaq_utils.serialize.serializer_legacy import DeSerializer
 
 class DAQ_Move_LECODirector(LECODirector, DAQ_Move_base):
     """A control module, which in the dashboard, allows to control a remote Move module.
