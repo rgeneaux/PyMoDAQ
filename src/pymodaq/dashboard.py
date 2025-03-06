@@ -395,11 +395,11 @@ class DashBoard(CustomApp):
         self.add_action('modify_preset', 'Modify Preset', '',
                         'Modify an existing experimental setup configuration file: a "preset"',
                         auto_toolbar=False)
-        self.add_action('load_preset', 'LOAD', 'Open',
-                        tip='Load the selected Preset: ')
+
         self.add_widget('preset_list', QtWidgets.QComboBox, toolbar=self.toolbar,
                         signal_str='currentTextChanged', slot=self.update_preset_action)
-
+        self.add_action('load_preset', 'LOAD', 'Open',
+                        tip='Load the selected Preset: ')
         self.update_preset_action_list()
 
         self.add_action('new_overshoot', 'New Overshoot', '',
