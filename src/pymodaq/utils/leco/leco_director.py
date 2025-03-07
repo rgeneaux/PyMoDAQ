@@ -14,7 +14,7 @@ from pymodaq.utils.leco.pymodaq_listener import PymodaqListener
 
 leco_parameters = [
     {'title': 'Actor name:', 'name': 'actor_name', 'type': 'str', 'value': "actor_name",
-     'text': 'Name of the actor plugin to communicate with.'},
+     'tip': 'Name of the actor plugin to communicate with.'},
 ]
 
 

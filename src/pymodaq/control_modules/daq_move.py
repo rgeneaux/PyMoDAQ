@@ -472,16 +472,7 @@ class DAQ_Move(ParameterControlModule):
             self.init_signal.emit(self._initialized_state)
 
         elif status.command == "get_actuator_value" or status.command == 'check_position':
-            if isinstance(status.attribute, DataActuator):
-                data_act: DataActuator = status.attribute
-            else:
-                data_act: DataActuator = status.attribute[0]  # backcompatibility
-            data_act.name = self.title  # for the DataActuator name to be the title of the DAQ_Move
-            if (not Unit(self.units).is_compatible_with(Unit(data_act.units)) and
-                    data_act.units == ''):  #this happens if the units have not been specified in
-                # the plugin
-                data_act.force_units(self.units)
-
+            data_act = self._check_data_type(status.attribute)
             if self.ui is not None:
                 self.ui.display_value(data_act)
                 if self.ui.is_action_checked('show_graph'):
@@ -495,11 +486,7 @@ class DAQ_Move(ParameterControlModule):
                 self._command_tcpip.emit(ThreadCommand(LECOMoveCommands.POSITION, data_act))
 
         elif status.command == "move_done":
-            if isinstance(status.attribute, DataActuator):
-                data_act: DataActuator = status.attribute
-            else:
-                data_act: DataActuator = status.attribute[0]  # deprecated
-            data_act.name = self.title  # for the DataActuator name to be the title of the DAQ_Move
+            data_act = self._check_data_type(status.attribute)
             if self.ui is not None:
                 self.ui.display_value(data_act)
                 self.ui.move_done = True
@@ -523,6 +510,22 @@ class DAQ_Move(ParameterControlModule):
 
         elif status.command == 'units':
             self.units = status.attribute
+
+    def _check_data_type(self, data_act: Union[list[np.ndarray], float, DataActuator]) -> DataActuator:
+        """ Make sure the data is a DataActuator
+
+        Mostly to make sure DAQ_Move is backcompatible with old style plugins
+        """
+        if isinstance(data_act, list):  # backcompatibility
+            data_act = data_act[0]
+        if isinstance(data_act, np.ndarray):  # backcompatibility
+            data_act = DataActuator(data=[data_act], units=self.units)
+        data_act.name = self.title  # for the DataActuator name to be the title of the DAQ_Move
+        if (not Unit(self.units).is_compatible_with(Unit(data_act.units)) and
+                data_act.units == ''):  #this happens if the units have not been specified in
+            # the plugin
+            data_act.force_units(self.units)
+        return  data_act
 
     def get_actuator_value(self):
         """Get the current actuator value via the "get_actuator_value" command send to the hardware

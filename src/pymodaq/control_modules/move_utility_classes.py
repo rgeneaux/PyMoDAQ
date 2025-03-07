@@ -536,8 +536,8 @@ class DAQ_Move_base(QObject):
             return self._current_value
 
     @current_value.setter
-    def current_value(self, value: Union[float, DataActuator]):
-        if isinstance(value, numbers.Number):
+    def current_value(self, value: Union[float, np.ndarray, DataActuator]):
+        if isinstance(value, numbers.Number) or isinstance(value, np.ndarray):
             self._current_value = DataActuator(self._title, data=value,
                                                units=self.axis_unit)
         else:
