@@ -9,13 +9,12 @@ from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, como
 from pymodaq_utils.serialize.factory import SerializableFactory
 from pymodaq_utils.utils import ThreadCommand, getLineInfo
 
+from pymodaq_data import data  # for serialization factory registration
+from pymodaq.utils import data  # for serialization factory registration
+
 from pymodaq_gui.parameter import Parameter
 
-<<<<<<< HEAD
-from pymodaq_utils.serialize.serializer_legacy import DeSerializer
-=======
-from pymodaq.utils.data import DataFromPlugins
->>>>>>> 6d29afb0 (Register DataFromPlugins for LECOViewer.)
+
 from pymodaq.utils.leco.leco_director import LECODirector, leco_parameters
 from pymodaq.utils.leco.director_utils import DetectorDirector
 
