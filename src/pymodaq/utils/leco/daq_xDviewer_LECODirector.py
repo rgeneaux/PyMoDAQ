@@ -9,7 +9,6 @@ from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, como
 from pymodaq_utils.serialize.factory import SerializableFactory
 from pymodaq_utils.utils import ThreadCommand, getLineInfo
 
-from pymodaq_data import data  # for serialization factory registration
 from pymodaq.utils import data  # for serialization factory registration
 
 from pymodaq_gui.parameter import Parameter
@@ -39,7 +38,6 @@ class DAQ_xDViewer_LECODirector(LECODirector, DAQ_Viewer_base):
 
     def __init__(self, parent=None, params_state=None, grabber_type: str = "0D", **kwargs) -> None:
         super().__init__(parent=parent, params_state=params_state, **kwargs)
-        self._register_DataFromPlugins_for_deserialization()
         self.register_rpc_methods((
             self.set_x_axis,
             self.set_y_axis,
@@ -57,9 +55,6 @@ class DAQ_xDViewer_LECODirector(LECODirector, DAQ_Viewer_base):
         self.ind_data = 0
         self.data_mock = None
 
-    def _register_DataFromPlugins_for_deserialization(self) -> None:
-        cls = DataFromPlugins
-        SerializableFactory().register_from_type(cls, cls.serialize, cls.deserialize)
 
     def ini_detector(self, controller=None):
         """
