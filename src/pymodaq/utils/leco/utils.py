@@ -2,17 +2,20 @@ from __future__ import annotations
 from base64 import b64encode
 import subprocess
 import sys
+from typing import Any, Optional, Union, get_args
 
 from typing import Any, Optional, Union, get_args, TypeVar
-from pymodaq_data import data
+
 from pymodaq.utils import data
 from pymodaq_utils.serialize.factory import SerializableFactory
+
 
 from pymodaq_utils.logger import set_logger
 
 
 logger = set_logger('leco_utils')
 JSON_TYPES = Union[str, int, float]
+
 
 ser_factory = SerializableFactory()
 

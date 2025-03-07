@@ -14,6 +14,7 @@ from pymodaq.utils import data  # for serialization factory registration
 from pymodaq_gui.parameter import Parameter
 
 
+from pymodaq.utils.data import DataFromPlugins
 from pymodaq.utils.leco.leco_director import LECODirector, leco_parameters
 from pymodaq.utils.leco.director_utils import DetectorDirector
 
