@@ -9,16 +9,13 @@ from typing import Any, Optional, Union, get_args, TypeVar
 from pymodaq.utils import data
 from pymodaq_utils.serialize.factory import SerializableFactory
 
-
 from pymodaq_utils.logger import set_logger
 
 
 logger = set_logger('leco_utils')
 JSON_TYPES = Union[str, int, float]
 
-
 ser_factory = SerializableFactory()
-
 SERIALIZABLE = Union[*ser_factory.get_serializables()]
 
 
@@ -37,6 +34,7 @@ def binary_serialization(
     if isinstance(pymodaq_object, get_args(JSON_TYPES)):
         return pymodaq_object, None
     return None, [SerializableFactory().get_apply_serializer(pymodaq_object)]
+
 
 
 def binary_serialization_to_kwargs(
