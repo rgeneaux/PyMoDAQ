@@ -19,7 +19,7 @@ JSON_TYPES = Union[str, int, float]
 
 ser_factory = SerializableFactory()
 
-SERIALIZABLE = Union[*ser_factory.get_serializables()]
+SERIALIZABLE = Union[ser_factory.get_serializables()]
 
 
 def serialize_object(pymodaq_object: Union[SERIALIZABLE, Any]) -> Union[str, Any]:
