@@ -2,7 +2,7 @@ from __future__ import annotations
 import subprocess
 import sys
 from typing import Any, Optional, Union, get_args, TypeVar
-from pymodaq_data import data
+
 from pymodaq.utils import data
 # import also the DeSerializer for easier imports in dependents
 from pymodaq_utils.serialize.serializer_legacy import Serializer, DeSerializer, SerializableFactory
@@ -15,7 +15,6 @@ logger = set_logger('leco_utils')
 ser_factory = SerializableFactory()
 JSON_TYPES = Union[str, int, float]
 
-SERIALIZABLE = Union[*ser_factory.get_serializables()]
 
 
 def serialize_object(pymodaq_object: Union[SERIALIZABLE, Any]) -> Union[str, Any]:
@@ -25,6 +24,13 @@ def serialize_object(pymodaq_object: Union[SERIALIZABLE, Any]) -> Union[str, Any
     else:
         return Serializer(pymodaq_object).to_b64_string() # will raise a proper error if the object
     #is not serializable
+
+
+## this form below is to be compatible with python <= 3.10
+## for py>= 3.11 this could be written SERIALIZABLE = Union[ser_factory.get_serializables()]
+SERIALIZABLE = Union[ser_factory.get_serializables()[0]]
+for klass in ser_factory.get_serializables()[1:]:
+    SERIALIZABLE = Union[SERIALIZABLE, klass]
 
 
 def binary_serialization(

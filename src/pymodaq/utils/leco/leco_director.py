@@ -1,7 +1,8 @@
-
 import random
-
 from typing import Callable, Sequence, List
+
+from pymodaq_utils.enums import StrEnum
+from typing import Callable, Sequence, List, Optional, Union
 
 import pymodaq_gui.parameter.utils as putils
 # object used to send info back to the main thread:
